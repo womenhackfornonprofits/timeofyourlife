@@ -1,0 +1,54 @@
+/*  
+Skin Name: Purple
+Version: 1.0
+Description: Skin for Flat
+*/
+
+#mobile-menu,
+#headerwrap,
+#respond #cancel-comment-reply-link,
+.post-nav .arrow,
+.pagenav a,
+.post .carousel-pager .selected,
+.slider .carousel-pager .selected,
+.module-slider .carousel-pager a.selected,
+.back-top a,
+.skillset li span{
+	background: #c594da;
+}
+.back-top a:hover {
+	background: #DFAEF4;
+}
+
+#main-nav ul a:hover, 
+#main-nav .current_page_item ul a:hover, 
+#main-nav ul .current_page_item a:hover, 
+#main-nav .current-menu-item ul a:hover, 
+#main-nav ul .current-menu-item a:hover,
+.timeline .timeline-dot {
+	color: #c594da;
+}
+#main-nav ul ul:before {
+	border-right: 8px solid #c594da;
+}
+#mobile-menu,
+#headerwrap #menu-icon,
+#main-nav a,
+#site-logo a,
+#site-description {
+	color: #fff;
+}
+#main-nav a:hover {
+	color: #000;
+}
+@media screen and (max-width: 1000px) {
+	#headerwrap #main-nav .current_page_item a,
+	#headerwrap #main-nav .current-menu-item a {
+		background: none;
+		color: #000;
+	}
+	#headerwrap #main-nav a:hover,
+	#headerwrap #main-nav ul a:hover {
+		color: #000;
+	}
+}
