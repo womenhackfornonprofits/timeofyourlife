@@ -167,7 +167,7 @@ h6 {
 /* form input */
 input, textarea, select, input[type=search], button {
 	font-size: 120%;
-	font-family: 'Josefin Sans', sans-serif;
+	font-family: 'Josefin Sans', serif;
 }
 input[type=text], input[type=password], textarea, input[type=search], input[type=email] {
 	background-color: #eee;
