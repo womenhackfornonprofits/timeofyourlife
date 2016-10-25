@@ -79,7 +79,8 @@ Thumbs.db
 # track these mu-plugins, plugins, and themes
 # add your own entries here
 !wp-content/mu-plugins/example-mu-plugin/
-!wp-content/plugins/example-plugin/
+!wp-content/plugins/
 !wp-content/themes/timeofyourlife/
 !wp-content/themes/FoundationPress/
 !wp-content/themes/flat/
+!wp-content/themes/flat-child/
