@@ -8,11 +8,9 @@
  Version:        1.0.0
 */
 
-@import url("../flat/style.css");
-
 /* =Theme customization starts here
 ------------------------------------------------------- */
 
 body {
-  background-color: yellow;
+  background-color: green;
 }
