@@ -6,7 +6,6 @@
  *  @var object */
 global $themify; ?>
 <meta charset="<?php bloginfo( 'charset' ); ?>">
-<link href="https://fonts.googleapis.com/css?family=Pacifico" rel="stylesheet">
 <!-- wp_header -->
 <?php wp_head(); ?>
 
@@ -21,7 +20,7 @@ global $themify; ?>
 		<?php themify_header_before(); // hook ?>
 
 		<header id="header" class="section-inner pagewidth" itemscope="itemscope" itemtype="https://schema.org/WPHeader">
-
+		
 			<a id="menu-icon" href="#mobile-menu"></a>
 
         	<?php themify_header_start(); // hook ?>
@@ -33,7 +32,7 @@ global $themify; ?>
 					<div id="site-description" class="site-description"><?php echo class_exists( 'Themify_Customizer' ) ? $themify_customizer->site_description( $site_desc ) : $site_desc; ?></div>
 				<?php endif; ?>
 			</hgroup>
-
+			
 			<div id="mobile-menu" class="sidemenu sidemenu-off">
 
 				<div class="social-widget">
@@ -53,9 +52,9 @@ global $themify; ?>
 					<?php themify_theme_menu_nav(); ?>
 					<!-- /#main-nav -->
 				</nav>
-
+				
 				<a id="menu-icon-close" href="#"></a>
-
+				
 			</div>
 			<!-- /#mobile-menu -->
 

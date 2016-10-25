@@ -35,6 +35,16 @@ class TB_Gallery_Module extends Themify_Builder_Module {
 				'option_js' => true,
 			),
 			array(
+				'id' => 'layout_masonry',
+				'type' => 'checkbox',
+				'label' => false,
+				'pushed' => 'pushed',
+				'options' => array(
+					array( 'name' => 'masonry', 'value' => __( 'Use Masonry', 'themify' ) )
+				),
+				'wrap_with_class' => 'tf-group-element tf-group-element-grid',
+			),
+			array(
 				'id' => 'thumbnail_gallery',
 				'type' => 'image',
 				'label' => __('Thumbnail', 'themify'),

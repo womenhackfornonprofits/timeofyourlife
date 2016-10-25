@@ -75,7 +75,7 @@ class Themify_Microdata {
 			$post_schema_type = 'ProfilePage';
 		} elseif ( is_search() ) {
 			$post_schema_type = 'SearchResultsPage';
-		} elseif ( themify_is_woocommerce_active() && is_shop() ) {
+		} elseif ( themify_is_woocommerce_active() && themify_is_shop() ) {
 			$post_schema_type = 'Store';
 		} elseif ( themify_is_woocommerce_active() && is_product() ) {
 			$post_schema_type = 'Product';
@@ -85,7 +85,7 @@ class Themify_Microdata {
 
 		// Page
 		if( is_page() && ! post_password_required() ) {
-	       if( ! ( themify_is_woocommerce_active() && is_shop() ) ) {
+	       if( ! ( themify_is_woocommerce_active() && themify_is_shop() ) ) {
 				$microdata = array(
 					'@context' => 'http://schema.org',
 					'@type' => $post_schema_type,
@@ -162,7 +162,7 @@ class Themify_Microdata {
 		}
 
 		// Shop Page
-		if ( themify_is_woocommerce_active() && is_shop() ) {
+		if ( themify_is_woocommerce_active() && themify_is_shop() ) {
 			$microdata = array(
 				'@context' => 'http://schema.org',
 				'@type' => $post_schema_type,

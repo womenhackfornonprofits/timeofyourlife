@@ -18,6 +18,7 @@ add_action('delete_attachment', 'themify_delete_attachment');
 $themify_ajax_actions = array(
 	'plupload',
 	'delete_preset',
+        'get_404_pages',
 	'remove_post_image',
 	'remove_video',
 	'save',
@@ -38,6 +39,49 @@ add_action('added_post_meta', 'themify_after_post_meta', 10, 4);
 add_action('updated_post_meta', 'themify_after_post_meta', 10, 4);
 add_action('deleted_post_meta', 'themify_deleted_post_meta', 10, 4);
 
+//Show 404 page in autocomplete
+function themify_get_404_pages(){
+    if(!empty($_POST['term'])){
+        $args = array(
+                'sort_order' => 'asc',
+                'sort_column' => 'post_title',
+                'post_type' => 'page',
+                's'=>  sanitize_text_field($_POST['term']),
+                'post_status' => 'publish',
+                'posts_per_page' => 15
+        );
+        add_filter( 'posts_search', 'themify_posts_where', 10, 2 );
+        $terms = new WP_Query($args);
+        $items = array();
+        if($terms->have_posts()){
+            while ($terms->have_posts()){
+                $terms->the_post();
+                $items[] = array('value'=>  get_the_ID(),'label'=>  get_the_title());
+            }
+        }
+        echo wp_json_encode($items);
+    }
+    wp_die();
+}
+
+//Search only by post title
+function themify_posts_where($search, &$wp_query ){       
+    if ( ! empty( $search ) && ! empty( $wp_query->query_vars['search_terms'] ) ) {
+        global $wpdb;
+
+        $q = $wp_query->query_vars;
+        $n = ! empty( $q['exact'] ) ? '' : '%';
+
+        $search = array();
+        $search[] = $wpdb->prepare( "$wpdb->posts.post_title LIKE %s", $wpdb->esc_like( implode(' ',$q['search_terms']) ) . $n );
+
+        if ( ! is_user_logged_in() )
+            $search[] = "$wpdb->posts.post_password = ''";
+
+        $search = ' AND ' . implode( ' AND ', $search );
+    }
+    return $search;
+}
 /**
  * AJAX - Plupload execution routines
  * @since 1.2.2
@@ -321,7 +365,7 @@ function themify_reset_styling(){
 	$temp_data = array();
 	foreach($data as $a){
 		$v = explode("=", $a);
-		$temp_data[$v[0]] = str_replace("+"," ",preg_replace('/%([0-9a-f]{2})/ie', "chr(hexdec('\\1'))", $v[1]));
+		$temp_data[$v[0]] = str_replace("+"," ",preg_replace_callback('/%([0-9a-f]{2})/i', 'themify_save_replace_cb', $v[1]));
 	}
 	$temp = array();
 	foreach($temp_data as $key => $val){
@@ -345,7 +389,7 @@ function themify_reset_setting(){
 	$temp_data = array();
 	foreach($data as $a){
 		$v = explode("=", $a);
-		$temp_data[$v[0]] = str_replace("+"," ",preg_replace('/%([0-9a-f]{2})/ie', "chr(hexdec('\\1'))", $v[1]));
+		$temp_data[$v[0]] = str_replace("+"," ",preg_replace_callback('/%([0-9a-f]{2})/i', 'themify_save_replace_cb', $v[1]));
 	
 	}
 	$temp = array();

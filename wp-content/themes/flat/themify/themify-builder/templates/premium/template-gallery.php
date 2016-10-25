@@ -29,7 +29,8 @@ if (TFCache::start_cache('gallery', self::$post_id, array('ID' => $module_ID))):
         'animation_effect' => '',
         'gallery_pagination'=>false,
         'gallery_per_page'=>'',
-        'gallery_image_title'=>false
+        'gallery_image_title'=>false,
+        'layout_masonry' => ''
     );
 
     if (isset($mod_settings['appearance_gallery']))
@@ -61,8 +62,10 @@ if (TFCache::start_cache('gallery', self::$post_id, array('ID' => $module_ID))):
     if ( '' != $sc_image_size ) 
         $fields_args['image_size_gallery'] = $sc_image_size;
 
+    $masonry_class = $layout_masonry === 'masonry' ? 'gallery-masonry' : '';
+
     $container_class = implode(' ', apply_filters('themify_builder_module_classes', array(
-        'module', 'module-' . $mod_name, $module_ID, 'gallery', 'gallery-columns-' . $columns, 'layout-' . $layout_gallery, $appearance_gallery, $css_gallery, $animation_effect
+        'module', 'module-' . $mod_name, $module_ID, 'gallery', 'gallery-columns-' . $columns, $masonry_class, 'layout-' . $layout_gallery, $appearance_gallery, $css_gallery, $animation_effect
                     ), $mod_name, $module_ID, $fields_args)
     );
     $container_props = apply_filters( 'themify_builder_module_container_props', array(

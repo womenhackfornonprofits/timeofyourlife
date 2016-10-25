@@ -339,37 +339,47 @@ add_filter( 'pre_get_posts', 'themify_search_excludes_cpt', 9 );
 		function page_404_settings(){
 			$data            = themify_get_data();
 			$page_404 = themify_get( 'setting-page_404' );
-
+                        $max = 100;
 			$args = array(
 				'sort_order' => 'asc',
 				'sort_column' => 'post_title',
 				'post_type' => 'page',
 				'post_status' => 'publish',
-				'posts_per_page' => -1
+				'posts_per_page' => $max
 			);
-			$pages = get_posts( $args );
+			$pages = new WP_Query( $args );
                         $front = get_option('page_on_front');
-			$out = '<p>
-						<span class="label">' . __( 'Custom 404 Page', 'themify' ) . ' </span>
-						<select name="setting-page_404"> 
+			$out = '<p><span class="label">' . __( 'Custom 404 Page', 'themify' ) . ' </span>';
+                        if($pages->max_num_pages>1){
+                            $post_name = '';
+                            if($page_404){
+                                $post_name = get_post($page_404);
+                                if(!empty($post_name)){
+                                    $post_name = esc_attr($post_name->post_title);
+                                }
+                            }
+                            $out.='<input type="text" value="'.$post_name.'" id="themify_404_page_autocomplete" /><input type="hidden" name="setting-page_404" value="'.$page_404.'" />';
+                        }
+                        else{
+                            $out.='<select name="setting-page_404"> 
 							<option value="0">'.esc_attr( __( 'Select page', 'themify'  ) ).'</option>';
-							foreach ( $pages as $page ) {
-                                                            if($page->ID!=$front){
+							while ( $pages->have_posts() ) {
+                                                            $pages->the_post();
+                                                            $id = get_the_ID();
+                                                            if($id!=$front){
 								$selected         = '';
-								if ( $page_404 == $page->ID ) {
+								if ( $page_404 == $id ) {
 									$selected = 'selected="selected"';
 								}
-								$out .= '<option '.$selected.' value="' . esc_attr( $page->ID ) . '">';
-								$out .= $page->post_title;
+								$out .= '<option '.$selected.' value="' . $id . '">';
+								$out .= get_the_title();
 								$out .= '</option>';
                                                             }
 							}
-				$out .= '</select>
-					</p>';
-			$out .= '<p>
-						<span class="pushlabel"><small>' . __('First create a new Page (eg. 404) and then select it here. The selected page will be used for error 404 (when a URL is not found on your site).', 'themify') . '</small></span>
-					</p>';
-
+                            $out .= '</select>';
+                        }
+			$out .= '<p><span class="pushlabel"><small>' . __('First create a new Page (eg. 404) and then select it here. The selected page will be used for error 404 (when a URL is not found on your site).', 'themify') . '</small></span></p>';
+                        wp_reset_postdata();
 			return $out;
 		}
 	}
@@ -2125,8 +2135,8 @@ function themify_404_display_static_page( $posts ) {
 				$count = count( $posts );
 
 				if ( 1 == $count ) {
-					// Show 404 if is draft AND user is not logged
-					if ( 'draft' == $posts[0]->post_status && ! is_user_logged_in() && is_main_query() && ! is_robots() && ! is_home() && ! is_feed() && ! is_search() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
+					// Show 404 if is draft or private AND user is not logged
+					if ( ('draft' == $posts[0]->post_status || 'private' == $posts[0]->post_status) && ! is_user_logged_in() && is_main_query() && ! is_robots() && ! is_home() && ! is_feed() && ! is_search() && ( ! defined( 'DOING_AJAX' ) || ! DOING_AJAX ) ) {
 
 						$posts = array( get_post( $pageid ) );
 						add_action( 'wp', 'themify_404_header' );

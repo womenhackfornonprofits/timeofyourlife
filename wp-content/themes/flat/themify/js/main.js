@@ -139,7 +139,7 @@ var Themify, ThemifyGallery;
 						});
 						newHeight = Math.max.apply(Math, heights);
 						$self.outerHeight(newHeight);
-						$(".caroufredsel_wrapper").outerHeight(newHeight);
+						$self.parent().outerHeight(newHeight);
 					});
 				}
 			}, 500);
@@ -413,6 +413,7 @@ var Themify, ThemifyGallery;
 		},
 		InitGallery: function ($el, $args) {
 			var lightboxConditions = typeof themifyScript == 'object' && ( ( themifyScript.lightbox.lightboxContentImages && $(themifyScript.lightbox.contentImagesAreas).length) || themifyScript.lightbox.lightboxGalleryOn || $(themifyScript.lightbox.lightboxSelector).length > 0 ) ? true : false;
+			var self = this;
 			if (lightboxConditions || $('.module.module-gallery').length > 0 || $('.module.module-image').length > 0 || $('.themify_lightbox').length > 0 ) {
 				this.LoadCss(themify_vars.url + '/css/lightbox.css', null);
 				this.LoadAsync(themify_vars.url + '/js/lightbox.js', function () {
@@ -420,8 +421,25 @@ var Themify, ThemifyGallery;
 				}, null, null, function () {
 					return ('undefined' !== typeof $.fn.magnificPopup);
 				});
-			}
-			else {
+				
+				if( $( '.gallery-masonry' ).length ) {
+					this.LoadAsync(themify_vars.includesURL + 'js/imagesloaded.min.js', function () {
+						self.LoadAsync(themify_vars.includesURL + 'js/masonry.min.js', function () {
+							$( '.gallery-masonry' ).imagesLoaded(function() {
+								$( '.gallery-masonry' ).masonry({
+									itemSelector: '.gallery-item',
+									columnWidth: 1,
+									originLeft : ! $( 'body' ).hasClass( 'rtl' )
+								}); 
+							});
+						}, null, null, function () {
+							return ('undefined' !== typeof $.fn.masonry);
+						});
+					}, null, null, function () {
+						return ('undefined' !== typeof $.fn.imagesLoaded);
+					});
+				}
+			} else {
 				$('body').addClass('themify_lightbox_loaded').removeClass('themify_lightboxed_images');
 			}
 		},

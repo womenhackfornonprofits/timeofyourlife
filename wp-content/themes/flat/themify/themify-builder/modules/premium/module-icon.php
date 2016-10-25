@@ -113,18 +113,68 @@ class TB_Icon_Module extends Themify_Builder_Module {
                         'type' => 'text',
                         'label' => __('Link', 'themify'),
                         'class' => 'fullwidth',
+                        'binding' => array(
+                            'empty' => array(
+                                'hide' => array('link_options')
+                            ),
+                            'not_empty' => array(
+                                'show' => array('link_options', 'lightbox_size')
+                            )
+                        )
                     ),
                     array(
-                        'id' => 'new_window',
-                        'type' => 'checkbox',
-                        'pushed' => 'pushed',
-                        'label' => ' ',
-                        'default' => 'none',
-                        'new_line' => false,
+                        'id' => 'link_options',
+                        'type' => 'radio',
+                        'label' => __('Open Link In', 'themify'),
                         'options' => array(
-                            array('name' => 1, 'value' => __('Open link in new tab', 'themify')),
+                            'regular' => __('Same window', 'themify'),
+                            'lightbox' => __('Lightbox ', 'themify'),
+                            'newtab' => __('New tab ', 'themify')
                         ),
+                        'new_line' => false,
+                        'default' => 'regular',
+                        'option_js' => true
                     ),
+                    array(
+                        'id' => 'lightbox_size',
+                        'type' => 'multi',
+                        'label' => __('Lightbox Dimension', 'themify'),
+                        'options' => array(
+                            array(
+                                'id' => 'lightbox_width',
+                                'type' => 'text',
+                                'label' => __( 'Width', 'themify' ),
+                                'value' => ''
+                            ),
+                            array(
+                                'id' => 'lightbox_size_unit_width',
+                                'type' => 'select',
+                                'label' => __( 'Units', 'themify' ),
+                                'options' => array(
+                                    'pixels' => __('px ', 'themify'),
+                                    'percents' => __('%', 'themify')
+                                ),
+                                'default' => 'pixels'
+                            ),
+                            array(
+                                'id' => 'lightbox_height',
+                                'type' => 'text',
+                                'label' => __( 'Height', 'themify' ),
+                                'value' => ''
+                            ),
+                            array(
+                                'id' => 'lightbox_size_unit_height',
+                                'type' => 'select',
+                                'label' => __( 'Units', 'themify' ),
+                                'options' => array(
+                                    'pixels' => __('px ', 'themify'),
+                                    'percents' => __('%', 'themify')
+                                ),
+                                'default' => 'pixels'
+                            )
+                        ),
+                        'wrap_with_class' => 'tf-group-element tf-group-element-lightbox'
+                    )
                 )
             ),
             // Additional CSS

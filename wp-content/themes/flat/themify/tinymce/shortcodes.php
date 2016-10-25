@@ -462,7 +462,7 @@ return array(
 				'label' => __( 'Style:', 'themify' ),
 			),
 		),
-		'template' => '[themify_list<# if ( data.icon ) { #> icon="{{data.icon}}"<# } #><# if ( data.style ) { #> style="{{data.style}}"<# } #><# if ( data.icon_color ) { #> icon_color="{{data.icon_color}}"<# } #><# if ( data.icon_bg ) { #> icon_bg="{{data.icon_bg}}"<# } #>]<ul><li>&nbsp;</li></ul>[/themify_list]'
+		'template' => '[themify_list<# if ( data.icon ) { #> icon="{{data.icon}}"<# } #><# if ( data.style ) { #> style="{{data.style}}"<# } #><# if ( data.icon_color ) { #> icon_color="{{data.icon_color}}"<# } #><# if ( data.icon_bg ) { #> icon_bg="{{data.icon_bg}}"<# } #>]<ul><li><# if ( ! data.selectedContent ) { data.selectedContent = "&nbsp;"; } #>{{{data.selectedContent}}}</li></ul>[/themify_list]'
 	),
 	'is_guest' => array(
 		'label' => __( 'Is Guest', 'themify' ),

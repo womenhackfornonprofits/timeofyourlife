@@ -53,7 +53,7 @@ Description: Skin for Flat
 #headerwrap #main-nav .current-menu-item a {
 	background: #555;
 }
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1200px) {
 	#headerwrap #main-nav .current_page_item a,
 	#headerwrap #main-nav .current-menu-item a {
 		background: none;

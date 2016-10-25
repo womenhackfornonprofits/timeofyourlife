@@ -58,21 +58,9 @@ function themify_builder_init() {
 	} // class_exists check
 
 	if( is_admin() ) {
-		if( ! ( defined( 'DOING_AJAX' ) && DOING_AJAX ) ) {
-			add_action( 'media_buttons', 'add_themify_builder_button' );
-		}
 		if( current_user_can( 'update_plugins' ) ) {
 			include THEMIFY_BUILDER_DIR . '/themify-builder-updater.php';
 		}
-	}
-}
-
-if ( ! function_exists('add_themify_builder_button') ) {
-	/**
-	 * display Themify Builder Switch on admin side.
-	 */
-	function add_themify_builder_button() {
-	    echo '<a href="#" id="themify_builder_switch_frontend_button" class="button themify_builder_switch_frontend">' . __('Themify Builder', 'themify') . '</a>';
 	}
 }
 
@@ -213,71 +201,39 @@ if(!function_exists('themify_manage_builder_animation')) {
 	function themify_manage_builder_animation($data=array()) {
 		$opt_data = themify_get_data();
 		$pre = 'setting-page_builder_animation_';
-		$mobile_checked = '';
-		$disabled_checked = '';
-
-		if ( isset( $opt_data[ $pre.'mobile_exclude' ] ) && $opt_data[ $pre.'mobile_exclude' ] ) 
-			$mobile_checked = " checked='checked'";
-		
-		if ( isset( $opt_data[ $pre.'disabled' ] ) && $opt_data[ $pre . 'disabled' ] ) 
-			$disabled_checked = " checked='checked'";
-
-		$out = '';
-		$out .= sprintf( '<p><label for="%s"><input type="checkbox" id="%s" name="%s"%s> %s</label></p>',
-			esc_attr( $pre . 'mobile_exclude' ),
-			esc_attr( $pre . 'mobile_exclude' ),
-			esc_attr( $pre . 'mobile_exclude' ),
-			$mobile_checked,
-			wp_kses_post( __( 'Disable Builder animation on mobile and tablet only', 'themify') )
-		);
-		$out .= sprintf( '<p><label for="%s"><input type="checkbox" id="%s" name="%s"%s> %s</label></p>',
-			esc_attr( $pre . 'disabled' ),
-			esc_attr( $pre . 'disabled' ),
-			esc_attr( $pre . 'disabled' ),
-			$disabled_checked,
-			wp_kses_post( __( 'Disable Builder animation on all devices (all row and module animation will not have any effect)', 'themify') )
+		$options = array(
+			array( 'name' => '', 'value' => '' ),
+			array( 'name' => esc_html__( 'Disable on mobile & tablet', 'themify' ), 'value' =>'mobile' ),
+			array( 'name' => esc_html__( 'Disable on all devices', 'themify' ), 'value' =>'all' )
 		);
 
-		return $out;
-	}
-}
-
-if(!function_exists('themify_manage_builder_parallax')) {
-	/**
-	 * Builder Setting Animations
-	 * @param array $data
-	 * @return string
-	 * @since 2.0.2
-	 */
-	function themify_manage_builder_parallax($data=array()) {
-		$opt_data = themify_get_data();
-		$pre = 'setting-page_builder_parallax_';
-		$mobile_checked = '';
-		$disabled_checked = '';
-                
-		if ( isset( $opt_data[ $pre.'mobile_exclude' ] ) && $opt_data[ $pre.'mobile_exclude' ] ) 
-			$mobile_checked = " checked='checked'";
-		
-		if ( isset( $opt_data[ $pre.'disabled' ] ) && $opt_data[ $pre . 'disabled' ] ) 
-			$disabled_checked = " checked='checked'";
-
-		$out = '';
-		$out .= sprintf( '<p><label for="%s"><input type="checkbox" id="%s" name="%s"%s> %s</label></p>',
-			esc_attr( $pre . 'mobile_exclude' ),
-			esc_attr( $pre . 'mobile_exclude' ),
-			esc_attr( $pre . 'mobile_exclude' ),
-			$mobile_checked,
-			wp_kses_post( __( 'Disable Builder parallax on mobile and tablet only', 'themify') )
+		$output = '';
+		$output .= sprintf('<p><label for="%s" class="label">%s</label><select id="%s" name="%s">%s</select></p>',
+			esc_attr( $pre . 'appearance' ),
+			esc_html__( 'Appearance Animation', 'themify' ),
+			esc_attr( $pre . 'appearance' ),
+			esc_attr( $pre . 'appearance' ),
+			themify_options_module( $options, $pre . 'appearance' )
 		);
-		$out .= sprintf( '<p><label for="%s"><input type="checkbox" id="%s" name="%s"%s> %s</label></p>',
-			esc_attr( $pre . 'disabled' ),
-			esc_attr( $pre . 'disabled' ),
-			esc_attr( $pre . 'disabled' ),
-			$disabled_checked,
-			wp_kses_post( __( 'Disable Builder parallax on all devices (all row will not have any effect)', 'themify') )
+		$output .= sprintf('<p><label for="%s" class="label">%s</label><select id="%s" name="%s">%s</select></p>',
+			esc_attr( $pre . 'parallax_bg' ),
+			esc_html__( 'Parallax Background', 'themify' ),
+			esc_attr( $pre . 'parallax_bg' ),
+			esc_attr( $pre . 'parallax_bg' ),
+			themify_options_module( $options, $pre . 'parallax_bg' )
+		);
+		$output .= sprintf('<p><label for="%s" class="label">%s</label><select id="%s" name="%s">%s</select></p>',
+			esc_attr( $pre . 'parallax_scroll' ),
+			esc_html__( 'Parallax Scrolling', 'themify' ),
+			esc_attr( $pre . 'parallax_scroll' ),
+			esc_attr( $pre . 'parallax_scroll' ),
+			themify_options_module( $options, $pre . 'parallax_scroll', true, 'mobile' )
+		);
+		$output .= sprintf( '<span class="pushlabel"><small>%s</small></span>', 
+			esc_html__( 'If animation is disabled, the element will appear static', 'themify' )
 		);
 
-		return $out;
+		return $output;
 	}
 }
 
@@ -356,11 +312,6 @@ function themify_framework_theme_config_add_builder($themify_theme_config) {
 		);
 
 		$themify_theme_config['panel']['settings']['tab']['page_builder']['custom-module'][] = array(
-			'title' => __('Parallax Effects', 'themify'),
-			'function' => 'themify_manage_builder_parallax'
-		);
-
-		$themify_theme_config['panel']['settings']['tab']['page_builder']['custom-module'][] = array(
 			'title' => __('Responsive Design', 'themify'),
 			'function' => 'themify_manage_builder_responsive_design'
 		);
@@ -426,3 +377,25 @@ if ( ! function_exists( 'themify_builder_grid_lists' ) ) {
 		<?php
 	}
 }
+
+/**
+ * Add message when builder is off
+ *
+ * @since  2.8.8
+ */
+
+if( !function_exists( 'themify_builder_off_message' ) ):
+function themify_builder_off_message( $content ) {
+	global $post;
+	$message = '';
+	$ThemifyBuilder = new Themify_Builder();
+	$has_data = $ThemifyBuilder->get_builder_data( $post->ID );
+	if( current_user_can( 'publish_posts') && !Themify_Builder_Model::builder_check() && !empty($has_data) ) {
+		$message = sprintf( __( 'Builder is disabled. Go to <a href="%s" target="_blank">Themify > Settings > Themify Builder</a> to enable it.', 'themify' )
+			, admin_url( 'admin.php?page=themify#setting-themify-builder' ) );
+	}
+
+	return $content . $message;
+}
+endif;
+add_filter( 'the_content', 'themify_builder_off_message' );

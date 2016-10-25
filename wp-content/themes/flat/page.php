@@ -49,7 +49,7 @@ global $themify; ?>
 			<div class="page-content entry-content">
 
 				<?php if ( $themify->hide_page_image != 'yes' && has_post_thumbnail() ) : ?>
-					<figure class="post-image"><?php themify_image( "{$themify->auto_featured_image}w={$themify->page_image_width}&h=0&ignore=true" ); ?></figure>
+					<figure class="post-image"><?php themify_image( "{$themify->auto_featured_image}w={$themify->image_page_single_width}&h={$themify->image_page_single_height}&ignore=true" ); ?></figure>
 				<?php endif; ?>
 
 				<?php the_content(); ?>

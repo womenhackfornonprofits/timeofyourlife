@@ -148,12 +148,17 @@ $paged = $this->get_paged_query();
 
                 // hooks action
                 do_action_ref_array('themify_builder_override_loop_themify_vars', array($themify, $mod_name));
-
                 $out = '';
                 if ($posts) {
                     $out .= themify_get_shortcode_template($posts);
+                } else {
+                    if( current_user_can( 'publish_posts' ) ) {
+                        printf( __('<a href="%s" target="_blank">Click here</a> to add post and assign it in %s', 'themify' )
+                            , $post_type_post != 'post' ? admin_url( 'post-new.php?post_type=' . $post_type_post )
+                                : admin_url( 'post-new.php' )
+                            , $category_post ? $category_post : $type_query_post  );
+                    }
                 }
-
                 // revert to original $themify state
                 $themify = clone $themify_save;
                 echo!empty($out) ? $out : '';
@@ -256,6 +261,13 @@ $paged = $this->get_paged_query();
 
                     <?php
                 endforeach;
+
+                if( !$posts && current_user_can( 'publish_posts' ) ) {
+                    printf( __( '<a href="%s" target="_blank">Click here</a> to add post and assign it in %s', 'themify' )
+                        , $post_type_post != 'post' ? admin_url( 'post-new.php?post_type=' . $post_type_post )
+                            : admin_url( 'post-new.php' )
+                        , $category_post ? $category_post : $type_query_post  );
+                }
                 wp_reset_postdata();
                 $post = $temp_post;
             } // end $is_theme_template

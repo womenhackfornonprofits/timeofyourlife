@@ -1,6 +1,6 @@
 <?php
 
-foreach( array( 'image', 'audio', 'postmeta', 'post_id_info', 'multi', 'date', 'video', 'color', 'dropdown', 'dropdownbutton', 'textbox', 'textarea', 'checkbox', 'separator', 'layout', 'radio', 'gallery_shortcode', 'query_category' ) as $field_type ) {
+foreach( array( 'image', 'audio', 'postmeta', 'post_id_info', 'multi', 'date', 'video', 'color', 'dropdown', 'dropdownbutton', 'textbox', 'textarea', 'checkbox', 'separator', 'layout', 'radio', 'gallery_shortcode', 'query_category', 'assignments' ) as $field_type ) {
 	add_action( "themify_metabox/field/{$field_type}", "themify_meta_field_{$field_type}", 10, 1 );
 }
 add_action( 'wp_ajax_themify_metabox_media_lib_browse', 'themify_metabox_media_lib_browse' );
@@ -232,11 +232,12 @@ function themify_meta_field_color( $args ) {
 	$meta_box = $args['meta_box'];
 	$meta_value = $args['meta_value'];
 	extract($args, EXTR_OVERWRITE);
+	$format = isset( $meta_box['format'] ) ? $meta_box['format'] : 'hex';
 
-	$html = sprintf( '<span class="colorSelect"></span>
-	<input type="text" id="%s" name="%s" value="%s" class="themify_input_field colorSelectInput" />
+	$html = sprintf( '
+	<input type="text" id="%s" name="%s" value="%s" class="themify_input_field colorSelectInput" data-format="%s" />
 	<input type="button" class="button clearColor" value="' . __('&times;', 'themify') . '">',
-		esc_attr( $meta_box['name'] ), esc_attr( $meta_box['name'] ), esc_attr( $meta_value? $meta_value : $meta_box['meta']['default'] ) );
+		esc_attr( $meta_box['name'] ), esc_attr( $meta_box['name'] ), esc_attr( $meta_value? $meta_value : $meta_box['meta']['default'] ), esc_attr( $format ) );
 
 	if(isset($meta_box['label']) && '' != $meta_box['label'])
 		$html = sprintf('<label for="%s">%s %s</label>', esc_attr( $meta_box['name'] ), $html, esc_attr( $meta_box['label'] ));
@@ -282,9 +283,10 @@ function themify_meta_field_layout( $args ) {
 		// Check image src whether absolute url or relative url
 		$img_src = ( '' != parse_url( $options['img'], PHP_URL_SCHEME) ) ? $options['img'] : get_template_directory_uri() . '/' . $options['img'];
 
-		$ops_html .= sprintf('<a href="#" class="preview-icon %s"><img src="%s" title="%s" alt="%s" %s /></a>',
+		$ops_html .= sprintf('<a href="#" class="preview-icon %s"><img src="%s" title="%s" alt="%s" %s /><span class="tm-option-title">%s</span></a>',
 			$class, esc_url( $img_src ), esc_attr( $title ), esc_attr( $options['value'] ),
-			isset($meta_box['size'])? 'width="'.esc_attr( $meta_box['size'][0] ).'" height="'.esc_attr( $meta_box['size'][1] ).'"': ''
+			isset($meta_box['size'])? 'width="'.esc_attr( $meta_box['size'][0] ).'" height="'.esc_attr( $meta_box['size'][1] ).'"': '',
+			$title
 		);
 	}
 
@@ -1097,6 +1099,13 @@ function themify_meta_field_multi( $args, $call_before_after = true, $echo = tru
 
 	foreach ($meta_box['meta']['fields'] as $field) {
 		if ( is_callable( 'themify_meta_field_'.$field['type'] ) ) {
+			// @todo
+			if( isset( $field['display_callback'] ) && is_callable( $field['display_callback'] ) ) {
+				$show = (bool) call_user_func( $field['display_callback'], $field );
+				if( ! $show ) { // if display_callback returns "false",
+					continue;  // do not output the field
+				}
+			}
 			$call_args = array(
 				'meta_box' => $field,
 				'meta_value' => get_post_meta( $post_id, $field['name'], true ),

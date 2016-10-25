@@ -680,6 +680,8 @@ function themify_get_known_plugin_info( $name = '' ) {
 		'builder-woocommerce'    => array( 'name' => __( 'Builder WooCommerce', 'themify' ), 'page' => 'https://themify.me/addons/woocommerce', 'path' => 'builder-woocommerce/init.php' ),
 		'contact-form-7'    => array( 'name' => __( 'Contact Form 7', 'themify' ), 'page' => 'https://wordpress.org/plugins/contact-form-7/', 'path' => 'contact-form-7/wp-contact-form-7.php' ),
 		'themify-portfolio-post' => array( 'name' => __( 'Portfolio Posts', 'themify' ), 'page' => 'https://themify.me', 'path' => 'themify-portfolio-post/themify-portfolio-post.php' ),
+		'mailchimp-for-wp' => array( 'name' => __( 'MailChimp for WordPress', 'themify' ), 'page' => 'https://wordpress.org/plugins/mailchimp-for-wp/', 'path' => 'mailchimp-for-wp/mailchimp-for-wp.php' ),
+		'woocommerce' => array( 'name' => __( 'WooCommerce', 'themify' ), 'page' => 'https://wordpress.org/plugins/woocommerce/', 'path' => 'woocommerce/woocommerce.php' ),
 	);
 
 	if( empty( $name ) ) {

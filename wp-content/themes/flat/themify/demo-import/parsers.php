@@ -33,10 +33,10 @@ class WXR_Parser {
 			echo '<pre>';
 			if ( 'SimpleXML_parse_error' == $result->get_error_code() ) {
 				foreach  ( $result->get_error_data() as $error )
-					echo esc_html( $error->line . ':' . $error->column ) . ' ' . esc_html( $error->message ) . "\n";
+					echo $error->line . ':' . $error->column . ' ' . esc_html( $error->message ) . "\n";
 			} else if ( 'XML_parse_error' == $result->get_error_code() ) {
 				$error = $result->get_error_data();
-				echo wp_kses_post( $error[0] . ':' . $error[1] ) . ' ' . esc_html( $error[2] );
+				echo $error[0] . ':' . $error[1] . ' ' . esc_html( $error[2] );
 			}
 			echo '</pre>';
 			echo '<p><strong>' . __( 'There was an error when reading this WXR file', 'wordpress-importer' ) . '</strong><br />';
@@ -54,12 +54,6 @@ class WXR_Parser {
  */
 class WXR_Parser_SimpleXML {
 	function parse( $file ) {
-		if ( ! function_exists( 'WP_Filesystem' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-		WP_Filesystem();
-		global $wp_filesystem;
-
 		$authors = $posts = $categories = $tags = $terms = array();
 
 		$internal_errors = libxml_use_internal_errors(true);
@@ -69,7 +63,7 @@ class WXR_Parser_SimpleXML {
 		if ( function_exists( 'libxml_disable_entity_loader' ) ) {
 			$old_value = libxml_disable_entity_loader( true );
 		}
-		$success = $dom->loadXML( $wp_filesystem->get_contents( $file ) );
+		$success = $dom->loadXML( file_get_contents( $file ) );
 		if ( ! is_null( $old_value ) ) {
 			libxml_disable_entity_loader( $old_value );
 		}
@@ -120,28 +114,46 @@ class WXR_Parser_SimpleXML {
 		// grab cats, tags and terms
 		foreach ( $xml->xpath('/rss/channel/wp:category') as $term_arr ) {
 			$t = $term_arr->children( $namespaces['wp'] );
-			$categories[] = array(
+			$category = array(
 				'term_id' => (int) $t->term_id,
 				'category_nicename' => (string) $t->category_nicename,
 				'category_parent' => (string) $t->category_parent,
 				'cat_name' => (string) $t->cat_name,
 				'category_description' => (string) $t->category_description
 			);
+
+			foreach ( $t->termmeta as $meta ) {
+				$category['termmeta'][] = array(
+					'key' => (string) $meta->meta_key,
+					'value' => (string) $meta->meta_value
+				);
+			}
+
+			$categories[] = $category;
 		}
 
 		foreach ( $xml->xpath('/rss/channel/wp:tag') as $term_arr ) {
 			$t = $term_arr->children( $namespaces['wp'] );
-			$tags[] = array(
+			$tag = array(
 				'term_id' => (int) $t->term_id,
 				'tag_slug' => (string) $t->tag_slug,
 				'tag_name' => (string) $t->tag_name,
 				'tag_description' => (string) $t->tag_description
 			);
+
+			foreach ( $t->termmeta as $meta ) {
+				$tag['termmeta'][] = array(
+					'key' => (string) $meta->meta_key,
+					'value' => (string) $meta->meta_value
+				);
+			}
+
+			$tags[] = $tag;
 		}
 
 		foreach ( $xml->xpath('/rss/channel/wp:term') as $term_arr ) {
 			$t = $term_arr->children( $namespaces['wp'] );
-			$terms[] = array(
+			$term = array(
 				'term_id' => (int) $t->term_id,
 				'term_taxonomy' => (string) $t->term_taxonomy,
 				'slug' => (string) $t->term_slug,
@@ -149,6 +161,15 @@ class WXR_Parser_SimpleXML {
 				'term_name' => (string) $t->term_name,
 				'term_description' => (string) $t->term_description
 			);
+
+			foreach ( $t->termmeta as $meta ) {
+				$term['termmeta'][] = array(
+					'key' => (string) $meta->meta_key,
+					'value' => (string) $meta->meta_value
+				);
+			}
+
+			$terms[] = $term;
 		}
 
 		// grab posts
@@ -210,7 +231,7 @@ class WXR_Parser_SimpleXML {
 						);
 					}
 				}
-			
+
 				$post['comments'][] = array(
 					'comment_id' => (int) $comment->comment_id,
 					'comment_author' => (string) $comment->comment_author,
@@ -262,12 +283,6 @@ class WXR_Parser_XML {
 	);
 
 	function parse( $file ) {
-		if ( ! function_exists( 'WP_Filesystem' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/file.php';
-		}
-		WP_Filesystem();
-		global $wp_filesystem;
-
 		$this->wxr_version = $this->in_post = $this->cdata = $this->data = $this->sub_data = $this->in_tag = $this->in_sub_tag = false;
 		$this->authors = $this->posts = $this->term = $this->category = $this->tag = array();
 
@@ -278,7 +293,7 @@ class WXR_Parser_XML {
 		xml_set_character_data_handler( $xml, 'cdata' );
 		xml_set_element_handler( $xml, 'tag_open', 'tag_close' );
 
-		if ( ! xml_parse( $xml, $wp_filesystem->get_contents( $file ), true ) ) {
+		if ( ! xml_parse( $xml, file_get_contents( $file ), true ) ) {
 			$current_line = xml_get_current_line_number( $xml );
 			$current_column = xml_get_current_column_number( $xml );
 			$error_code = xml_get_error_code( $xml );
@@ -336,7 +351,11 @@ class WXR_Parser_XML {
 		if ( ! trim( $cdata ) )
 			return;
 
-		$this->cdata .= trim( $cdata );
+		if ( false !== $this->in_tag || false !== $this->in_sub_tag ) {
+			$this->cdata .= $cdata;
+		} else {
+			$this->cdata .= trim( $cdata );
+		}
 	}
 
 	function tag_close( $parser, $tag ) {
@@ -413,10 +432,6 @@ class WXR_Parser_Regex {
 	var $terms = array();
 	var $base_url = '';
 
-	function WXR_Parser_Regex() {
-		$this->__construct();
-	}
-
 	function __construct() {
 		$this->has_gzip = is_callable( 'gzopen' );
 	}
@@ -424,7 +439,7 @@ class WXR_Parser_Regex {
 	function parse( $file ) {
 		$wxr_version = $in_post = false;
 
-		$fp = $this->open_package( $file, 'r' );
+		$fp = $this->fopen( $file, 'r' );
 		if ( $fp ) {
 			while ( ! $this->feof( $fp ) ) {
 				$importline = rtrim( $this->fgets( $fp ) );
@@ -473,7 +488,7 @@ class WXR_Parser_Regex {
 				}
 			}
 
-			$this->close_package($fp);
+			$this->fclose($fp);
 		}
 
 		if ( ! $wxr_version )
@@ -650,15 +665,10 @@ class WXR_Parser_Regex {
 		return '<' . strtolower( $matches[1] );
 	}
 
-	function open_package( $filename, $mode = 'r' ) {
+	function fopen( $filename, $mode = 'r' ) {
 		if ( $this->has_gzip )
 			return gzopen( $filename, $mode );
-		/**
-		 * Open the demo content file to import its entries
-		 * @since 2.0.2
-		 */
-		$do = 'open';
-		return call_user_func( 'f' . $do, $filename, $mode );
+		return fopen( $filename, $mode );
 	}
 
 	function feof( $fp ) {
@@ -673,14 +683,9 @@ class WXR_Parser_Regex {
 		return fgets( $fp, $len );
 	}
 
-	function close_package( $fp ) {
+	function fclose( $fp ) {
 		if ( $this->has_gzip )
 			return gzclose( $fp );
-		/**
-		 * Close the demo content file
-		 * @since 2.0.2
-		 */
-		$do = 'close';
-		return call_user_func( 'f' . $do, $fp );
+		return fclose( $fp );
 	}
 }

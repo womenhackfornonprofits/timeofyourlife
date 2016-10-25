@@ -26,14 +26,10 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 	var api = themifybuilderapp;
 
 	api.render = function() {
-		var container = document.createDocumentFragment();
-		_.each( themifyBuilder.builder_data, function( data ) {
-			var rowView = api.Views.init_row( data );
-			container.appendChild(rowView.view.render().el);
-		} );
-		document.getElementById('themify_builder_row_wrapper').appendChild(container);
+		var data = new api.Collections.Rows(themifyBuilder.builder_data),
+			builder = new api.Views.Builder({ el: '#themify_builder_row_wrapper', collection: data });
+		builder.render();
 	};
-
 
 	// Builder Function
 	ThemifyPageBuilder = {
@@ -83,12 +79,11 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 
 			/* rows */
 			$body.on(this.eventHandler.click, '.toggle_row', this.toggleRow)
-					.on(this.eventHandler.click, '.themify_builder_option_row, .themify_builder_style_row', this.optionRow)
+					// Row field type
+					.on(this.eventHandler.click, '#themify_builder_lightbox_container .themify_builder_duplicate_row', this.duplicateRowField)
+					.on(this.eventHandler.click, '#themify_builder_lightbox_container .themify_builder_delete_row', this.deleteRowField)
 
 					// used for both column and sub-column options
-					.on(this.eventHandler.click, '.themify_builder_option_column', this.optionColumn)
-					.on(this.eventHandler.click, '.themify_builder_delete_row', this.deleteRow)
-					.on(this.eventHandler.click, '.themify_builder_duplicate_row', this.duplicateRow)
 					.on(this.eventHandler.hover, '.themify_builder_row .row_menu', this.MenuHover)
 					.on(this.eventHandler.click, '#tfb_row_settings .add_new a', this.rowOptAddRow);
 			$('.themify_builder_row_panel').on(this.eventHandler.hover, '.module_menu', this.MenuHover);
@@ -103,7 +98,13 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 
 			api.vent.on('module:edit', this.optionsModule)
 			.on('module:delete', this.deleteModule)
-			.on('module:duplicate', this.duplicateModule);
+			.on('module:duplicate', this.duplicateModule)
+			.on('column:edit', this.optionColumn)
+			.on('row:edit', this.optionRow)
+			.on('row:delete', this.deleteRow)
+			.on('row:duplicate', this.duplicateRow)
+			.on('subrow:delete', this._subRowDelete)
+			.on('subrow:duplicate', this._subRowDuplicate);
 
 			/* hook save to publish button */
 			$('input#publish,input#save-post').on(this.eventHandler.click, function (e) {
@@ -162,7 +163,7 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 
 			// switch frontend
 			$('#themify_builder_switch_frontend').on(this.eventHandler.click, this.switchFrontEnd);
-			$('#themify_builder_switch_frontend_button').on(this.eventHandler.click, this.switchFrontEnd);
+			$('<a href="#" id="themify_builder_switch_frontend_button" class="button themify_builder_switch_frontend">' + themifyBuilder.switchToFrontendLabel + '</a>').on(this.eventHandler.click, this.switchFrontEnd).appendTo( '#postdivrich #wp-content-media-buttons' );
 
 			// Grid Menu List
 			$body
@@ -170,8 +171,6 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 					.on(this.eventHandler.click, '.themify_builder_column_alignment li a', this._columnAlignmentMenuClicked)
 					.on(this.eventHandler.hover, '.themify_builder_row .grid_menu', this._gridHover)
 					.on('change', '.themify_builder_row .gutter_select', this._gutterChange)
-					.on(this.eventHandler.click, '.themify_builder_sub_row .sub_row_delete', this._subRowDelete)
-					.on(this.eventHandler.click, '.themify_builder_sub_row .sub_row_duplicate', this._subRowDuplicate)
 					.on('change', '.themify_builder_equal_column_height_checkbox', this._equalColumnHeightChanged)
 
 					// Undo / Redo buttons
@@ -180,12 +179,6 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 
 					// Apply All checkbox
 					.on(this.eventHandler.click, '.style_apply_all', this.applyAll_events)
-
-					/* Copy, paste, import, export component (row, sub-row, module) */
-					.on(this.eventHandler.click, '.themify_builder_copy_component', this.copyComponentBuilder)
-					.on(this.eventHandler.click, '.themify_builder_paste_component', this.pasteComponentBuilder)
-					.on(this.eventHandler.click, '.themify_builder_import_component', this.importComponentBuilder)
-					.on(this.eventHandler.click, '.themify_builder_export_component', this.exportComponentBuilder)
 
 					/* On component import form save */
 					.on('click', '#builder_submit_import_component_form', this.importRowModBuilderFormSave);
@@ -208,7 +201,15 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 			jQuery('#collapse-menu').on('click', function(e) {
 				jQuery(window).resize();
 			});
-                        ThemifyBuilderCommon.columnDrag(null,false);
+    		ThemifyBuilderCommon.columnDrag(null,false);
+
+			// Switch to front builder after create post/page
+			if( window.sessionStorage.getItem( 'frontendURL' ) ) {
+				var postURL = window.sessionStorage.getItem( 'frontendURL' );
+				window.sessionStorage.removeItem( 'frontendURL' );
+				$('#themify_builder_alert').addClass('busy').show();
+				window.location.href = postURL;
+			}
 		},
 		// "Apply all" // apply all init
 		applyAll_init: function() {
@@ -353,7 +354,7 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 							}
 							var value = hex.replace('#', '') + sep + opacity;
 
-							var $cssRuleInput = this.parent().parent().find('.builderColorSelectInput');
+							var $cssRuleInput = $(this).parent().parent().find('.builderColorSelectInput');
 							$cssRuleInput.val(value);
 
 							$colorDisplay.val(hex.replace('#', ''));
@@ -551,35 +552,60 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 			e.preventDefault();
 			$(this).parents('.themify_builder_row').toggleClass('collapsed').find('.themify_builder_row_content').slideToggle();
 		},
-		deleteRow: function (e) {
+		deleteRow: function ($row, model) {
+			
+			if (!confirm(themifyBuilder.rowDeleteConfirm)) {
+				return;
+			}
+
+			var startValue = ThemifyPageBuilder.builderContainer.innerHTML;
+				
+			model.destroy();
+
+			var newValue = ThemifyPageBuilder.builderContainer.innerHTML;
+
+			ThemifyPageBuilder.newRowAvailable();
+
+			if ( startValue !== newValue ) {
+				ThemifyBuilderCommon.undoManager.events.trigger('change', [startValue, newValue]);
+			}
+		},
+		duplicateRow: function( $row, model ) {
+			var self = ThemifyPageBuilder,
+				rowView = api.Views.init_row( model.toJSON() ),
+				startValue = self.builderContainer.innerHTML;
+
+			rowView.view.render().$el.insertAfter( $row );
+			
+			var newValue = self.builderContainer.innerHTML;
+			if ( startValue !== newValue ) {
+				ThemifyBuilderCommon.undoManager.events.trigger('change', [startValue, newValue]);
+			}
+		},
+		deleteRowField: function( e ) {
 			e.preventDefault();
 
 			if (!confirm(themifyBuilder.rowDeleteConfirm)) {
 				return;
 			}
 
-			var row_length = $(this).closest('.themify_builder_row_js_wrapper').find('.themify_builder_row:visible').length,
+			var $row = $(this).closest('.themify_builder_row'),
+				row_length = $row.closest('.themify_builder_row_js_wrapper').find('.themify_builder_row:visible').length,
 				startValue = ThemifyPageBuilder.builderContainer.innerHTML;
 			if (row_length > 1) {
-				$(this).closest('.themify_builder_row').remove();
+				$row.remove();
 			}
 			else {
-				$(this).closest('.themify_builder_row').hide();
-			}
-
-			var newValue = ThemifyPageBuilder.builderContainer.innerHTML;
-			if ( startValue !== newValue ) {
-				ThemifyBuilderCommon.undoManager.events.trigger('change', [startValue, newValue]);
+				$row.hide();
 			}
 		},
-		duplicateRow: function (e) {
+		duplicateRowField: function (e) {
 			e.preventDefault();
 			var self = ThemifyPageBuilder,
 				oriElems = $(this).closest('.themify_builder_row'),
 				newElems = $(this).closest('.themify_builder_row').clone(),
 				row_count = $('#tfb_module_settings .themify_builder_row_js_wrapper').find('.themify_builder_row:visible').length + 1,
-				number = row_count + Math.floor(Math.random() * 9),
-				startValue = self.builderContainer.innerHTML;
+				number = row_count + Math.floor(Math.random() * 9);
 
 			// fix wpeditor empty textarea
 			newElems.find('.tfb_lb_wp_editor.tfb_lb_option_child').each(function () {
@@ -642,10 +668,6 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 			if(newElems.find('.builderColorSelect').length>0){
 				newElems.find('.builderColorSelect').minicolors('destroy').removeAttr('maxlength');
 				self.setColorPicker(newElems);
-			}
-			var newValue = self.builderContainer.innerHTML;
-			if ( startValue !== newValue ) {
-				ThemifyBuilderCommon.undoManager.events.trigger('change', [startValue, newValue]);
 			}
 		},
 		menuTouched: [],
@@ -1378,7 +1400,7 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 				}
 			});
 
-			api.activeModel.set('mod_settings', temp_appended_data);
+			api.activeModel.updateData({mod_settings: temp_appended_data});
 
 			ThemifyBuilderCommon.Lightbox.close();
 
@@ -1398,36 +1420,42 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 			e.preventDefault();
 		},
 		postSave: function (e) {
-			if ($('#themify_builder_row_wrapper').is(':visible')) {
-				var self = ThemifyPageBuilder;
+			var self = ThemifyPageBuilder;
 
-				if (!self.isPostSave) {
-					self.saveData(false, function () {
-						// Clear undo history
-						ThemifyBuilderCommon.undoManager.instance.clear();
-
-						self.isPostSave = true;
-						$(e.currentTarget).trigger('click');
-					});
-					e.preventDefault();
-				}
-			}
-		},
-		switchFrontEnd: function (e) {
-			if ($('#themify_builder_row_wrapper').is(':visible')) {
-				var self = ThemifyPageBuilder,
-						targetLink = themifyBuilder.permalink;
-
-				$('#themify_builder_alert').addClass('busy').show();
+			if (!self.isPostSave) {
 				self.saveData(false, function () {
-
 					// Clear undo history
 					ThemifyBuilderCommon.undoManager.instance.clear();
 
-					var new_url = targetLink.replace(/\&amp;/g, '&') + '#builder_active';
-					window.location.href = new_url;
+					self.isPostSave = true;
+					$(e.currentTarget).trigger('click');
 				});
 				e.preventDefault();
+			}
+		},
+		createPostBuilderButton: function( link ) {
+			var postId = $( '#post_ID' ).val();
+			if( window.location.href.indexOf( postId ) < 0 ) {
+				window.sessionStorage.setItem( 'frontendURL', link );
+				$('#post').trigger( 'submit' );
+			} else {
+				window.location.href = link;
+			}
+		},
+		switchFrontEnd: function (e) {
+			e.preventDefault();
+			var self = ThemifyPageBuilder,
+				targetLink = themifyBuilder.permalink.replace(/\&amp;/g, '&') + '#builder_active';
+
+			$('#themify_builder_alert').addClass('busy').show();
+			if ($('#themify_builder_row_wrapper').is(':visible')) {
+				self.saveData(false, function () {
+					// Clear undo history
+					ThemifyBuilderCommon.undoManager.instance.clear();
+					self.createPostBuilderButton( targetLink );
+				});
+			} else {
+				self.createPostBuilderButton( targetLink );
 			}
 		},
 		mainSave: function (e) {
@@ -1441,7 +1469,7 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 				option_data = {};
 
 			// rows
-			$('#themify_builder_row_wrapper .themify_builder_row:visible').each(function(r) {
+			$('#themify_builder_row_wrapper .themify_builder_row').each(function(r) {
 				option_data[r] = self._getRowSettings($(this), r);
 			});
 			return option_data;
@@ -2178,7 +2206,7 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 
 			$('.themify_builder_row_js_wrapper').each(function () {
 				var $container = $(this),
-					$parent = $container.find('.themify_builder_row:visible');
+					$parent = $container.find('.themify_builder_row');
 
 				$parent.each(function () {
 					if ($(this).find('.themify_builder_module').length != 0) {
@@ -2209,7 +2237,7 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 					}
 				});
 
-				if ($parent.find('.themify_builder_module').length > 0 || $container.find('.themify_builder_row:visible').length == 0) {
+				if ($parent.find('.themify_builder_module').length > 0 || $container.find('.themify_builder_row').length == 0) {
 					var rowDataPlainObject = {
 							cols: [{ grid_class: 'col-full first last' }]
 						},
@@ -2272,12 +2300,11 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 				}
 			});
 		},
-		optionRow: function (e) {
-			e.preventDefault();
+		optionRow: function ($row, model) {
+			api.activeModel = model;
 
 			var self = ThemifyPageBuilder,
-					$this = $(this),
-					$options = $.parseJSON( $this.closest('.themify_builder_row').find('.row-data-styling').attr('data-styling') );
+				$options = model.get('styling') || {};
 
 			var callback = function () {
 				if ('object' === typeof $options && $options != null) {
@@ -2403,23 +2430,21 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 				// "Apply all" // apply all init
 				self.applyAll_init();
 
-				if ($this.closest('.themify_builder_style_row').length > 0) {
+				if ( model.get('styleClicked') ) {
 					$('a[href="#themify_builder_row_fields_styling"]').trigger('click');
 				}
 
 				ThemifyBuilderCommon.fontPreview($('#themify_builder_lightbox_container'),$options);
 			};
 
-			ThemifyBuilderCommon.highlightRow($this.closest('.themify_builder_row'));
+			ThemifyBuilderCommon.highlightRow($row);
 
 			ThemifyBuilderCommon.Lightbox.open({ loadMethod: 'inline', templateID: 'builder_form_row' }, callback);
 		},
-		optionColumn: function (e) {
-			e.preventDefault();
-
+		optionColumn: function ($column, model) {
+			api.activeModel = model;
 			var self = ThemifyPageBuilder,
-					$this = $(this),
-					$options = $.parseJSON( $this.closest('.themify_builder_col').children('.column-data-styling').attr('data-styling') );
+				$options = model.get('styling') || {};
 
 			var callback = function () {
 				if ('object' === typeof $options && $options != null) {
@@ -2494,20 +2519,19 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 
 				// "Apply all" // apply all init
 				self.applyAll_init();
-                                ThemifyBuilderCommon.fontPreview($('#themify_builder_lightbox_container'),$options);
+				ThemifyBuilderCommon.fontPreview($('#themify_builder_lightbox_container'),$options);
 			};
 
-			ThemifyBuilderCommon.highlightColumn($this.closest('.themify_builder_col'));
-			ThemifyBuilderCommon.highlightRow($this.closest('.themify_builder_row'));
+			ThemifyBuilderCommon.highlightColumn($column);
+			ThemifyBuilderCommon.highlightRow($column.closest('.themify_builder_row'));
 
 			ThemifyBuilderCommon.Lightbox.open({ loadMethod: 'inline', templateID: 'builder_form_column' }, callback);
 		},
 		rowSaving: function (e) {
 			e.preventDefault();
 			var self = ThemifyPageBuilder,
-				$active_row_settings = $('.current_selected_row .row-data-styling'),
 				temp_appended_data = $('#tfb_row_settings .tfb_lb_option').themifySerializeObject(),
-				entire_appended_data = $active_row_settings.data('styling'),
+				entire_appended_data = api.activeModel.get('styling') || {},
 				startValue = self.builderContainer.innerHTML;
 
 			$('#tfb_row_settings').find('.themify_builder_row_js_wrapper').each(function () {
@@ -2546,26 +2570,22 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 				}
 			});
 
-			$active_row_settings.attr('data-styling', JSON.stringify( temp_appended_data ) );
+			api.activeModel.set('styling', temp_appended_data);
 
-			// Save data
-			self.saveData(true, function () {
-				ThemifyBuilderCommon.Lightbox.close();
+			ThemifyBuilderCommon.Lightbox.close();
 
-				// logs action
-				var newValue = self.builderContainer.innerHTML;
-				if ( startValue !== newValue ) {
-					ThemifyBuilderCommon.undoManager.events.trigger('change', [startValue, newValue]);
-				}
-			}, 'cache');
+			// logs action
+			var newValue = self.builderContainer.innerHTML;
+			if ( startValue !== newValue ) {
+				ThemifyBuilderCommon.undoManager.events.trigger('change', [startValue, newValue]);
+			}
 
 			self.editing = true;
 		},
 		columnSaving: function (e) {
 			e.preventDefault();
 			var self = ThemifyPageBuilder,
-				$active_column_settings = $('.current_selected_column').children('.column-data-styling'),
-				entire_appended_data = $active_column_settings.data('styling') || {},
+				entire_appended_data = api.activeModel.get('styling') || {},
 				temp_appended_data = $('#tfb_column_settings .tfb_lb_option').themifySerializeObject(),
 				startValue = self.builderContainer.innerHTML;
 
@@ -2577,18 +2597,15 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 				}
 			});
 
-			$active_column_settings.attr('data-styling', JSON.stringify(temp_appended_data) );
+			api.activeModel.set('styling', temp_appended_data );
 
-			// Save data
-			self.saveData(true, function () {
-				ThemifyBuilderCommon.Lightbox.close();
+			ThemifyBuilderCommon.Lightbox.close();
 
-				// logs action
-				var newValue = self.builderContainer.innerHTML;
-				if ( startValue !== newValue ) {
-					ThemifyBuilderCommon.undoManager.events.trigger('change', [startValue, newValue]);
-				}
-			}, 'cache');
+			// logs action
+			var newValue = self.builderContainer.innerHTML;
+			if ( startValue !== newValue ) {
+				ThemifyBuilderCommon.undoManager.events.trigger('change', [startValue, newValue]);
+			}
 
 			self.editing = true;
 		},
@@ -2634,7 +2651,6 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 				} else {
 					// Add column
 					ThemifyPageBuilder._addNewColumn({
-						placeholder: themifyBuilder.dropPlaceHolder, 
 						newclass: 'col' + v, 
 						component: is_sub_row ? 'sub-column' : 'column'
 					}, $base);
@@ -2715,9 +2731,8 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 			}
 		},
 		_addNewColumn: function (params, $context) {
-			var template_func = wp.template('builder_column'),
-					template = template_func(params);
-			$context.append($(template));
+			var columnView = api.Views.init_column( { grid_class : params.newclass, component_name: params.component } );
+			$context.append( columnView.view.render().$el );
 		},
 		_gridHover: function (event) {
 			event.stopPropagation();
@@ -2825,22 +2840,31 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 			}
 			return spanClass;
 		},
-		_subRowDelete: function (event) {
+		_subRowDelete: function ($subrow, model) {
 			event.preventDefault();
 			if (confirm(themifyBuilder.subRowDeleteConfirm)) {
-				$(this).closest('.themify_builder_sub_row').remove();
+				model.destroy();
 				ThemifyPageBuilder.newRowAvailable();
 				ThemifyPageBuilder.equalHeight();
 				ThemifyPageBuilder.moduleEvents();
 				ThemifyPageBuilder.editing = true;
 			}
 		},
-		_subRowDuplicate: function (event) {
-			event.preventDefault();
-			$(this).closest('.themify_builder_sub_row').clone().insertAfter($(this).closest('.themify_builder_sub_row'));
+		_subRowDuplicate: function ($subrow, model) {
+			var self = ThemifyPageBuilder,
+				subRowView = api.Views.init_subrow( model.toJSON() ),
+				startValue = self.builderContainer.innerHTML;
+
+			subRowView.view.render().$el.insertAfter( $subrow );
+			
 			ThemifyPageBuilder.equalHeight();
 			ThemifyPageBuilder.moduleEvents();
 			ThemifyPageBuilder.editing = true;
+
+			var newValue = self.builderContainer.innerHTML;
+			if ( startValue !== newValue ) {
+				ThemifyBuilderCommon.undoManager.events.trigger('change', [startValue, newValue]);
+			}
 		},
 
 		// Undo/Redo Functionality
@@ -3100,324 +3124,6 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 				}
 			});
 		},
-		copyComponentBuilder: function(event) {
-			event.preventDefault();
-
-			var $thisElem = $(this);
-			var self = ThemifyPageBuilder;
-			var component = ThemifyBuilderCommon.detectBuilderComponent($thisElem);
-
-			switch (component) {
-				case 'row':
-					var $selectedRow = $thisElem.closest('.themify_builder_row');
-
-					var rowOrder = $selectedRow.index();
-					var rowData = self._getRowSettings($selectedRow, rowOrder);
-					var rowDataInJson = JSON.stringify(rowData);
-
-					ThemifyBuilderCommon.Clipboard.set('row', rowDataInJson);
-
-					$selectedRow.find('.themify_builder_dropdown').hide();
-					break;
-
-				case 'sub-row':
-					var $selectedSubRow = $thisElem.closest('.themify_builder_sub_row');
-
-					var subRowOrder = $selectedSubRow.index();
-					var subRowData = self._getSubRowSettings($selectedSubRow, subRowOrder);
-					var subRowDataInJSON = JSON.stringify(subRowData);
-
-					ThemifyBuilderCommon.Clipboard.set('sub-row', subRowDataInJSON);
-					break;
-
-				case 'module':
-					var $selectedModule = $thisElem.closest('.themify_builder_module');
-
-					var moduleName = $selectedModule.data('mod-name');
-					var moduleData = JSON.parse($selectedModule.find('.themify_module_settings')
-						.find('script[type="text/json"]').text());
-
-					var moduleDataInJson = JSON.stringify({
-						mod_name: moduleName,
-						mod_settings: moduleData
-					});
-
-					ThemifyBuilderCommon.Clipboard.set('module', moduleDataInJson);
-					break;
-
-				case 'column':
-				case 'sub-column':
-					var $selectedColumn = $thisElem.closest('.themify_builder_col'),
-						$selectedRow = 'sub-column' === component ? $thisElem.closest('.themify_builder_sub_row') : $thisElem.closest('.themify_builder_row'),
-						rowOrder = $selectedRow.index(),
-						rowData = 'sub-column' === component ? self._getSubRowSettings( $selectedRow, rowOrder ) : self._getRowSettings($selectedRow, rowOrder),
-						columnOrder = $selectedColumn.index(),
-						columnData = rowData.cols[ columnOrder ],
-						columnDataInJson = JSON.stringify(columnData);
-
-					ThemifyBuilderCommon.Clipboard.set(component, columnDataInJson);
-
-					break;
-			}
-		},
-		pasteComponentBuilder: function(event) {
-			event.preventDefault();
-
-			var $thisElem = $(this);
-			var self = ThemifyPageBuilder;
-			var component = ThemifyBuilderCommon.detectBuilderComponent($thisElem);
-
-			var dataInJSON = ThemifyBuilderCommon.Clipboard.get(component);
-
-			if (dataInJSON === false) {
-				ThemifyBuilderCommon.alertWrongPaste();
-				return;
-			}
-
-			if (!ThemifyBuilderCommon.confirmDataPaste()) {
-				return;
-			}
-
-			switch (component) {
-				case 'row':
-					var $selectedRow = $thisElem.closest('.themify_builder_row');
-
-					ThemifyBuilderCommon.highlightRow($selectedRow);
-
-					var rowDataPlainObject = JSON.parse(dataInJSON),
-						rowView = api.Views.init_row( rowDataPlainObject );
-
-					rowView.view.render().$el.insertAfter( $selectedRow );
-					$selectedRow.remove();
-					self.moduleEvents();
-
-					break;
-
-				case 'sub-row':
-					var $selectedSubRow = $thisElem.closest('.themify_builder_sub_row'),
-						subRowDataPlainObject = JSON.parse(dataInJSON),
-						subRowView = api.Views.init_subrow( subRowDataPlainObject );
-
-					subRowView.view.render().$el.insertAfter( $selectedSubRow );
-					$selectedSubRow.remove();
-					self.moduleEvents();
-					
-					break;
-
-				case 'module':
-					var $selectedModule = $thisElem.closest('.themify_builder_module');
-
-					$('.themify_builder_module').removeClass('current_selected_module');
-					$selectedModule.addClass('current_selected_module');
-
-					var modDataPlainObject = JSON.parse(dataInJSON),
-						moduleView = api.Views.init_module( modDataPlainObject );
-
-					moduleView.view.render().$el.insertAfter($selectedModule);
-					$selectedModule.remove();
-					self.moduleEvents();
-
-					break;
-
-				case 'column':
-				case 'sub-column':
-					var $selectedCol = $thisElem.closest('.themify_builder_col'),
-						$selectedRow = 'column' === component ? $thisElem.closest('.themify_builder_row') : $thisElem.closest('.themify_builder_sub_row'),
-						col_index = $selectedCol.index(),
-						row_index = $selectedRow.index(),
-						colDataPlainObject = JSON.parse(dataInJSON);
-
-						ThemifyBuilderCommon.highlightColumn( $selectedCol );
-
-						colDataPlainObject['column_order'] = col_index;
-
-						if ( 'column' === component ) {
-							colDataPlainObject['row_order'] = row_index;
-						} else {
-							colDataPlainObject['sub_row_order'] = row_index;
-							colDataPlainObject['row_order'] = $selectedCol.closest('.themify_builder_row').index();
-							colDataPlainObject['col_order'] = $selectedCol.parents('.themify_builder_col').index();
-						}
-						colDataPlainObject['component_name'] = component;
-
-						var columnView = api.Views.init_column( colDataPlainObject );
-
-						$selectedCol.html( columnView.view.render().$el.html() );
-						self.moduleEvents();
-					break;
-			}
-
-			self.editing = true;
-		},
-		importComponentBuilder: function(event) {
-			event.preventDefault();
-
-			var $thisElem = $(this);
-			var self = ThemifyPageBuilder;
-			var component = ThemifyBuilderCommon.detectBuilderComponent($thisElem);
-
-			var options = {
-				data: {
-					action: 'tfb_imp_component_data_lightbox_options'
-				}
-			};
-
-			switch (component) {
-				case 'row':
-					var $selectedRow = $thisElem.closest('.themify_builder_row');
-					options.data.component = 'row';
-
-					ThemifyBuilderCommon.highlightRow($selectedRow);
-					ThemifyBuilderCommon.Lightbox.open(options, null);
-					break;
-
-				case 'sub-row':
-					var $selectedSubRow = $thisElem.closest('.themify_builder_sub_row');
-					options.data.component = 'sub-row';
-
-					ThemifyBuilderCommon.highlightSubRow($selectedSubRow);
-					ThemifyBuilderCommon.Lightbox.open(options, null);
-					break;
-
-				case 'module':
-					var $selectedModule = $thisElem.closest('.themify_builder_module');
-					options.data.component = 'module';
-
-					$('.themify_builder_module').removeClass('current_selected_module');
-					$selectedModule.addClass('current_selected_module');
-
-					ThemifyBuilderCommon.Lightbox.open(options, null);
-					break;
-
-				case 'column':
-				case 'sub-column':
-					var $selectedCol = $thisElem.closest('.themify_builder_col'),
-						$selectedRow = 'column' === component ? $thisElem.closest('.themify_builder_row') : $thisElem.closest('.themify_builder_sub_row');
-					options.data.component = component;
-					options.data.indexData = { row: $selectedRow.index(), col: $selectedCol.index() };
-
-					ThemifyBuilderCommon.highlightColumn($selectedCol);
-					ThemifyBuilderCommon.Lightbox.open(options, null);
-					break;
-			}
-		},
-		exportComponentBuilder: function(event) {
-			event.preventDefault();
-
-			var $thisElem = $(this);
-			var self = ThemifyPageBuilder;
-			var component = ThemifyBuilderCommon.detectBuilderComponent($thisElem);
-
-			var options = {
-				data: {
-					action: 'tfb_exp_component_data_lightbox_options'
-				}
-			};
-
-			switch (component) {
-				case 'row':
-					var $selectedRow = $thisElem.closest('.themify_builder_row');
-					options.data.component = 'row';
-
-					var rowCallback = function() {
-						var rowOrder = $selectedRow.index();
-
-						var rowData = self._getRowSettings($selectedRow, rowOrder);
-						rowData['component_name'] = 'row';
-
-						var rowDataInJson = JSON.stringify(rowData);
-
-						var $rowDataTextField = $('#tfb_exp_row_data_field');
-						$rowDataTextField.val(rowDataInJson);
-
-						self._autoSelectInputField($rowDataTextField);
-						$rowDataTextField.on('click', function() {
-							self._autoSelectInputField($rowDataTextField)
-						});
-					};
-
-					ThemifyBuilderCommon.Lightbox.open(options, rowCallback);
-					break;
-
-				case 'sub-row':
-					var $selectedSubRow = $thisElem.closest('.themify_builder_sub_row');
-					options.data.component = 'sub-row';
-
-					var subRowCallback = function() {
-						var subRowOrder = $selectedSubRow.index();
-
-						var subRowData = self._getSubRowSettings($selectedSubRow, subRowOrder);
-						subRowData['component_name'] = 'sub-row';
-
-						var subRowDataInJSON = JSON.stringify(subRowData);
-
-						var $subRowDataTextField = $('#tfb_exp_sub_row_data_field');
-						$subRowDataTextField.val(subRowDataInJSON);
-
-						self._autoSelectInputField($subRowDataTextField);
-						$subRowDataTextField.on('click', function() {
-							self._autoSelectInputField($subRowDataTextField)
-						});
-					};
-
-					ThemifyBuilderCommon.Lightbox.open(options, subRowCallback);
-					break;
-
-				case 'module':
-					var $selectedModule = $thisElem.closest('.themify_builder_module');
-					options.data.component = 'module';
-
-					var moduleCallback = function() {
-						var moduleName = $selectedModule.data('mod-name');
-						var moduleData = JSON.parse($selectedModule.find('.themify_module_settings')
-							.find('script[type="text/json"]').text());
-
-						var moduleDataInJson = JSON.stringify({
-							mod_name: moduleName,
-							mod_settings: moduleData,
-							component_name: 'module'
-						});
-
-						var $moduleDataTextField = $('#tfb_exp_module_data_field');
-						$moduleDataTextField.val(moduleDataInJson);
-
-						self._autoSelectInputField($moduleDataTextField);
-						$moduleDataTextField.on('click', function() {
-							self._autoSelectInputField($moduleDataTextField)
-						});
-					};
-
-					ThemifyBuilderCommon.Lightbox.open(options, moduleCallback);
-					break;
-
-				case 'column':
-				case 'sub-column':
-					var $selectedRow = 'column' === component ? $thisElem.closest('.themify_builder_row') : $thisElem.closest('.themify_builder_sub_row'),
-						$selectedCol = $thisElem.closest('.themify_builder_col');
-					options.data.component = component;
-
-					var columnCallback = function() {
-
-						var rowOrder = $selectedRow.index(),
-						rowData = 'column' === component ? self._getRowSettings($selectedRow, rowOrder) : self._getSubRowSettings($selectedRow, rowOrder),
-						columnOrder = $selectedCol.index(),
-						columnData = rowData.cols[ columnOrder ];
-						columnData['component_name'] = component;
-
-						var columnDataInJson = JSON.stringify(columnData),
-							$columnDataTextField = $('#tfb_exp_'+ component.replace('-', '_') +'_data_field');
-						$columnDataTextField.val(columnDataInJson);
-
-						self._autoSelectInputField($columnDataTextField);
-						$columnDataTextField.on('click', function() {
-							self._autoSelectInputField($columnDataTextField)
-						});
-					};
-
-					ThemifyBuilderCommon.Lightbox.open(options, columnCallback);
-					break;
-			}
-		},
 		importRowModBuilderFormSave: function(event) {
 			event.preventDefault();
 
@@ -3505,6 +3211,8 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 						col_index = $column.index();
 
 					colDataPlainObject['column_order'] = col_index;
+					colDataPlainObject['grid_class'] = $column.prop('class').replace('themify_builder_col', '');
+
 					if ( 'column' === component ) {
 						colDataPlainObject['row_order'] = row_index;
 					} else {
@@ -3515,7 +3223,8 @@ var ThemifyPageBuilder, ThemifyBuilderCommon;
 
 					var columnView = api.Views.init_column( colDataPlainObject );
 
-					$column.html( columnView.view.render().$el.html() );
+					columnView.view.render().$el.insertAfter( $column );
+					$column.remove();
 
 					ThemifyBuilderCommon.Lightbox.close();
 					self.moduleEvents();

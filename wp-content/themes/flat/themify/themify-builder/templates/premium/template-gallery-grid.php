@@ -43,7 +43,7 @@ foreach ( $gallery_images as $image ) :
 		if ( $this->is_img_php_disabled() ) {
 			$img = wp_get_attachment_image( $image->ID, $image_size_gallery );
 		} else {
-			$img = wp_get_attachment_image_src( $image->ID, $image_size_gallery );
+			$img = wp_get_attachment_image_src( $image->ID, 'large' );
 			$img = themify_get_image( "ignore=true&src={$img[0]}&w={$thumb_w_gallery}&h={$thumb_h_gallery}" );
 		}
 

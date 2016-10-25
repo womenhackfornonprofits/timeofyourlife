@@ -388,14 +388,16 @@ final class Themify_Builder_Model {
 	 * @return boolean
 	 */
 	static public function is_animation_active() {
-            static $is_animation = NULL;
-            if(is_null($is_animation)){
-		// check if mobile exclude disabled OR disabled all transition
-                    $is_animation = self::is_premium() && !(( themify_check('setting-page_builder_animation_mobile_exclude') && themify_is_touch() ) 
-                            || themify_check('setting-page_builder_animation_disabled')
-			|| self::is_front_builder_activate());
-            }
-            return $is_animation;
+		static $is_animation = NULL;
+		if( is_null( $is_animation ) ){
+			// check if mobile exclude disabled OR disabled all transition
+			$disable_mobile = themify_get( 'setting-page_builder_animation_appearance' ) === 'mobile';
+			$disable_all = themify_get( 'setting-page_builder_animation_appearance' ) === 'all';
+			$is_animation = self::is_premium() 
+				&& !(( $disable_mobile && themify_is_touch() ) 
+				|| $disable_all || self::is_front_builder_activate());
+		}
+		return $is_animation;
 	}
 
 	/**
@@ -403,13 +405,33 @@ final class Themify_Builder_Model {
 	 * @return boolean
 	 */
 	static public function is_parallax_active() {
-            static $is_parallax = NULL;
-            if(is_null($is_parallax)){
-                // check if mobile exclude disabled OR disabled all transition
-                    $is_parallax = self::is_premium() && !(( themify_check('setting-page_builder_parallax_mobile_exclude') && themify_is_touch() ) 
-                            || themify_check('setting-page_builder_parallax_disabled'));
-            }
-            return $is_parallax;
+		static $is_parallax = NULL;
+		if( is_null( $is_parallax ) ){
+			// check if mobile exclude disabled OR disabled all transition
+			$disable_mobile = themify_get( 'setting-page_builder_animation_parallax_bg' ) === 'mobile';
+			$disable_all = themify_get( 'setting-page_builder_animation_parallax_bg' ) === 'all';
+			$is_parallax = self::is_premium() 
+				&& !(( $disable_mobile && themify_is_touch() ) 
+				|| $disable_all);
+		}
+		return $is_parallax;
+	}
+
+	/**
+	 * Check whether builder parallax scroll is active
+	 * @return boolean
+	 */
+	static public function is_parallax_scroll_active() {
+		static $is_parallax_scroll = NULL;
+		if( is_null( $is_parallax_scroll ) ){
+			// check if mobile exclude disabled OR disabled all transition
+			$disable_mobile = themify_get( 'setting-page_builder_animation_parallax_scroll' ) === 'mobile';
+			$disable_all = themify_get( 'setting-page_builder_animation_parallax_scroll' ) === 'all';
+			$is_parallax_scroll = self::is_premium() 
+				&& !(( $disable_mobile && themify_is_touch() ) 
+				|| $disable_all);
+		}
+		return $is_parallax_scroll;
 	}
 
 	/**

@@ -283,7 +283,7 @@ img.mfp-img {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	box-sizing: border-box;
-	padding: 40px 0 40px;
+	padding: 40px 0 60px;
 	margin: 0 auto;
 }
 /* The shadow behind the image */
@@ -295,7 +295,7 @@ img.mfp-img {
 	position: absolute;
 	left: 0;
 	top: 40px;
-	bottom: 40px;
+	bottom: 65px;
 	display: block;
 	right: 0;
 	width: auto;
@@ -320,6 +320,8 @@ img.mfp-img {
 	left: 0;
 	width: 100%;
 	cursor: auto;
+	top: auto;
+	bottom: 0;
 }
 .mfp-title {
 	text-align: left;
@@ -474,4 +476,12 @@ img.mfp-img {
 	width: 80%;
 	background: #fff;
 	padding: 20px;
+}
+
+/* iPhone Fix */
+.iphone .mfp-iframe-scaler iframe {
+	width: 1400px !important;
+	max-width: 100% !important;
+	*width: 100% !important;
+	-webkit-overflow-scrolling: touch;
 }

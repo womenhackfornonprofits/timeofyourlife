@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name:  Themify Metabox API
-Version:      1.0.1
+Version:      1.0.2
 Author:       Themify
 Author URI:   http://themify.me/
 Description:  Generate custom metaboxes for admin pages easily and efficiently.

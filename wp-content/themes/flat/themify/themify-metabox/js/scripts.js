@@ -110,51 +110,26 @@
 		//
 		// Color Picker
 		//
-		$( '.colorSelect' ).each(function(){
-			var input = $(this).parent().parent().find('.colorSelectInput'),
-					set_color = (input.val() == '') ? '' : input.val(),
-					minicolors = $(this);
-
-			minicolors.minicolors({
-				defaultValue: set_color,
-				textfield: false,
-				change: function(hex) {
-					// Generate text to show in console
-					var text = hex ? hex : '', colorField = this.parent().parent();
-					colorField.find('.colorSelectInput').val(text.replace('#', ''));
-					$('.clearColor', colorField).show();
-				}
-			});
-		});
-		// Set or clear color swatch based on input value
-		$(document).on('blur', '.colorSelectInput', function() {
-			var $parent = $(this).parent();
-			if('' == $(this).val()){
-				$parent.find('.colorSelect').minicolors('value', '');
-				$('.clearColor', $parent).hide();
+		$( '.colorSelectInput' ).each(function(){
+			var args = {},
+				$this = $( this ),
+				format = $this.data( 'format' );
+			if( format == 'rgba' ) {
+				args.format = 'rgb';
+				args.opacity = true;
+			} else if( format == 'rgb' ) {
+				args.format = 'rgb';
 			} else {
-				$('.colorSelect', $parent).minicolors('value', '#' + $(this).val());
-				$('.clearColor', $parent).show();
 			}
+			$( this ).minicolors( args );
 		});
+
+		// Set or clear color swatch based on input value
 		// Clear swatch and input
 		$(document).on('click', '.clearColor', function(){
 			$(this).parent().find('.colorSelect').minicolors('value', '');
 			$(this).parent().find('.colorSelectInput').val('');
 			$(this).hide();
-		});
-		$('.themify_field-color').each(function(){
-			if('' != $('.colorSelectInput', $(this)).val()){
-				$('.clearColor', $(this)).show();
-			}
-			if($('.colorTransparent', $(this)).prop('checked')){
-				$('.minicolors', $(this)).hide();
-			}
-		});
-		$( '.colorSelectInput' ).on('keyup', function(){
-			if ( $(this).val().indexOf( '#' ) !== -1 ) {
-				$(this).val( $(this).val().replace( '#', '' ) );
-			}
 		});
 
 		//

@@ -4,14 +4,15 @@ if( ! class_exists( 'Themify_Metabox' ) ) :
 class Themify_Metabox {
 
 	private static $instance = null;
+	var $panel_options;
 
 	public static function get_instance() {
 		return null == self::$instance ? self::$instance = new self : self::$instance;
 	}
 
 	private function __construct() {
-		add_action( 'init', array( $this, 'includes' ) );
-		add_action( 'admin_menu', array( $this, 'create_meta_boxes' ) );
+		$this->includes();
+		add_action( 'admin_menu', array( $this, 'admin_menu' ) );
 		add_action( 'pre_post_update', array( $this, 'save_postdata' ), 101 );
 		add_action( 'save_post', array( $this, 'save_postdata' ), 101 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ), 1 );
@@ -24,34 +25,105 @@ class Themify_Metabox {
 		require_once( THEMIFY_METABOX_DIR . 'includes/themify-user-fields.php' );
 	}
 
-	function create_meta_boxes() {
-		global $themify_write_panels, $themify_metaboxes;
+	/**
+	 * Returns a list of all meta boxes registered through Themify Metabox plugin
+	 *
+	 * @return array
+	 * @since 1.0.2
+	 */
+	function get_meta_boxes() {
+		static $meta_boxes = null;
 
-		if( ! isset( $themify_write_panels ) )
-			$themify_write_panels = array();
+		if( ! isset( $meta_boxes ) ) {
+			$meta_boxes = apply_filters( 'themify_metaboxes', array(
+				'themify-meta-boxes' => array(
+					'id' => 'themify-meta-boxes',
+					'title' => __( 'Themify Custom Panel', 'themify' ),
+					'context' => 'normal',
+					'priority' => 'high',
+				),
+			) );
+		}
 
-		$themify_write_panels = apply_filters( 'themify_do_metaboxes', $themify_write_panels );
-		$themify_metaboxes = apply_filters( 'themify_metaboxes', array(
-			'themify-meta-boxes' => array(
-				'id' => 'themify-meta-boxes',
-				'title' => __( 'Themify Custom Panel', 'themify' ),
-				'context' => 'normal',
-				'priority' => 'high',
-			),
-		) );
-		if( function_exists( 'add_meta_box' ) && is_array( $themify_write_panels ) ) {
-			foreach( $themify_write_panels as $args ) {
-				if( $args['pages'] != '' ) {
-					$themify_meta_page = $args['pages'];
+		return $meta_boxes;
+	}
+
+	/**
+	 * Returns the parameters for a meta box
+	 *
+	 * @param $id string the ID of the metabox registered using "themify_metaboxes" filter hook
+	 * @return array
+	 * @since 1.0.2
+	 */
+	public function get_meta_box( $id ) {
+		$meta_boxes = $this->get_meta_boxes();
+		if( isset( $meta_boxes[$id] ) ) {
+			return $meta_boxes[$id];
+		}
+
+		return false;
+	}
+
+	/**
+	 * Returns all the tabs and their fields for a meta box
+	 *
+	 * @param $meta_box string the ID of the metabox registered using "themify_metaboxes" filter hook
+	 * @param $post_type string optional post_type to filter down the list of tabs displayed in the meta box
+	 * @return array
+	 * @since 1.0.2
+	 */
+	function get_meta_box_options( $meta_box, $post_type = null ) {
+		if( ! isset( $this->panel_options[$meta_box] ) ) {
+			if( 'themify-meta-boxes' == $meta_box ) {
+				// backward compatibility
+				global $themify_write_panels;
+				if( ! isset( $themify_write_panels ) )
+					$themify_write_panels = array();
+
+				$themify_write_panels = apply_filters( 'themify_do_metaboxes', $themify_write_panels );
+				$this->panel_options['themify-meta-boxes'] = $themify_write_panels;
+			} else {
+				$this->panel_options[$meta_box] = apply_filters( "themify_metabox/fields/{$meta_box}", array(), $post_type );
+			}
+		}
+
+		// filter the panels by post type
+		if( $post_type ) {
+			$filtered = array();
+			foreach( $this->panel_options[$meta_box] as $tab ) {
+				if( isset( $tab['pages'] ) && $tab['pages'] != '' ) {
+					if( ! is_array( $tab['pages'] ) ) {
+						$tab['pages'] = array_map( 'trim', explode( ",", $tab['pages'] ) );
+					}
 				} else {
-					$themify_meta_page = 'post';
+					// use whatever the meta box itself uses
+					if( ( $def = $this->get_meta_box( $meta_box ) ) && isset( $def['screen'] ) ) {
+						$tab['pages'] = $def['screen'];
+					}
 				}
-				$metabox = isset( $args['metabox'] ) ? $args['metabox'] : 'themify-meta-boxes';
-				$pages = explode( ",", $themify_meta_page );
-				foreach( $pages as $page ) {
-					add_meta_box( $themify_metaboxes[$metabox]['id'], $themify_metaboxes[$metabox]['title'], array( $this, 'render' ), trim( $page ), $themify_metaboxes[$metabox]['context'], $themify_metaboxes[$metabox]['priority'] );
+				if( in_array( $post_type, $tab['pages'] ) ) {
+					$filtered[] = $tab;
 				}
 			}
+			return $filtered;
+		}
+
+		return $this->panel_options[$meta_box];
+	}
+
+	function admin_menu() {
+		global $typenow;
+		foreach( $this->get_meta_boxes() as $meta_box ) {
+
+			// add Themify Custom Panel to all post types
+			if( 'themify-meta-boxes' == $meta_box['id'] ) {
+				$meta_box['screen'] = get_post_types();
+				$options = $this->get_meta_box_options( 'themify-meta-boxes', $typenow );
+				if( empty( $options ) )
+					continue;
+			}
+
+			add_meta_box( $meta_box['id'], $meta_box['title'], array( $this, 'render' ), $meta_box['screen'], $meta_box['context'], $meta_box['priority'] );
 		}
 	}
 
@@ -61,7 +133,7 @@ class Themify_Metabox {
 	 * @return mixed
 	 */
 	function save_postdata( $post_id ) {
-		global $post, $themify_write_panels;
+		global $post;
 
 		if( function_exists( 'icl_object_id' ) && current_filter() === 'save_post' ) {
 			wp_cache_delete( $post_id, 'post_meta' );
@@ -80,51 +152,22 @@ class Themify_Metabox {
 		}
 
 		if( isset( $_POST['themify_proper_save'] ) && $_POST['themify_proper_save'] != '' ) {
-			foreach( $themify_write_panels as $write_panel ) {
-
-				$context = isset( $write_panel['pages'] ) ? is_array( $write_panel['pages'] ) ? $write_panel['pages'] : explode( ",", $write_panel['pages'] ) : array( 'post' );
-				if( ! in_array( $_POST['post_type'], $context ) ) {
+			foreach( $this->get_meta_boxes() as $meta_box ) {
+				$tabs = $this->get_meta_box_options( $meta_box['id'], $_POST['post_type'] );
+				if( empty( $tabs ) )
 					continue;
-				}
 
-				foreach ( $write_panel['options'] as $meta_box ) {
+				foreach( $tabs as $tab ) {
+					foreach ( $tab['options'] as $field ) {
 
-					if('multi' == $meta_box['type']){
-						// Grouped fields
-						foreach ( $meta_box['meta']['fields'] as $field ) {
-							$new_meta = isset( $field['name'] ) && isset( $_POST[$field['name']] ) ? $_POST[$field['name']] : '';
-							$old_meta = get_post_meta( $post_id, $field['name'], true );
-
-							// when a default value is set for the field and it's the same as $new_meta, do not bother with saving the field
-							if( isset( $field['default'] ) && $new_meta == $field['default'] ) {
-								$new_meta = '';
+						if( 'multi' == $field['type'] ) {
+							// Grouped fields
+							foreach ( $field['meta']['fields'] as $field ) {
+								$this->_save_meta( $field, $post_id );
 							}
-
-							if( $new_meta != '' && '' == $old_meta )
-								add_post_meta( $post_id, $field['name'], $new_meta, true );
-							elseif( $new_meta != '' && $new_meta != $old_meta )
-								update_post_meta( $post_id, $field['name'], $new_meta );
-							elseif( '' == $new_meta && $old_meta )
-								delete_post_meta( $post_id, $field['name'] );
+						} else {
+							$this->_save_meta( $field, $post_id );
 						}
-					} else {
-						// Single field
-						$new_meta = isset( $_POST[$meta_box['name']] ) ? $_POST[$meta_box['name']] : '';
-						$old_meta = get_post_meta( $post_id, $meta_box['name'], true );
-
-						// when a default value is set for the field and it's the same as $new_meta, do not bother with saving the field
-						if( isset( $meta_box['default'] ) && $new_meta == $meta_box['default'] ) {
-							$new_meta = '';
-						}
-
-						if( isset( $meta_box['force_save'] ) ) { // check if the post meta MUST be saved, regardless of it's value
-							update_post_meta( $post_id, $meta_box['name'], $new_meta );
-						} elseif( $new_meta != '' && '' == $old_meta )
-							add_post_meta( $post_id, $meta_box['name'], $new_meta, true );
-						elseif( $new_meta != '' && $new_meta != $old_meta )
-							update_post_meta( $post_id, $meta_box['name'], $new_meta );
-						elseif( '' == $new_meta && $old_meta )
-							delete_post_meta( $post_id, $meta_box['name'] );
 					}
 				}
 			}
@@ -136,48 +179,60 @@ class Themify_Metabox {
 		return false;
 	}
 
+	/**
+	 * Helper function that saves the custom field
+	 *
+	 * @since 1.0.2
+	 */
+	function _save_meta( $field, $post_id ) {
+		$new_meta = isset( $field['name'] ) && isset( $_POST[$field['name']] ) ? $_POST[$field['name']] : '';
+		$old_meta = get_post_meta( $post_id, $field['name'], true );
+
+		// when a default value is set for the field and it's the same as $new_meta, do not bother with saving the field
+		if( isset( $field['default'] ) && $new_meta == $field['default'] ) {
+			$new_meta = '';
+		}
+
+		// remove empty meta fields from database
+		if( '' == $new_meta && metadata_exists( 'post', $post_id, $field['name'] ) ) {
+			delete_post_meta( $post_id, $field['name'] );
+		}
+
+		if( $new_meta != '' && $new_meta != $old_meta ) {
+			update_post_meta( $post_id, $field['name'], $new_meta );
+		}
+	}
+
 	function render( $post, $metabox ) {
-		global $post, $themify_write_panels, $typenow, $themify_metaboxes;
+		global $post, $typenow;
 
 		$post_id = $post->ID;
-		echo '<div class="themify-meta-box-tabs" id="' . $metabox['id'] . '-meta-box">';
+		$tabs = $this->get_meta_box_options( $metabox['id'], $typenow );
+		if( empty( $tabs ) ) {
+			return;
+		}
+
+		$this->render_tabs( $tabs, $post, $metabox['id'] );
+	}
+
+	/**
+	 * Output the form and the fields
+	 *
+	 * @return null
+	 */
+	function render_tabs( $tabs, $post, $id ) {
+		$post_id = $post->ID;
+
+		echo '<div class="themify-meta-box-tabs" id="' . $id . '-meta-box">';
 			echo '<ul class="ilc-htabs themify-tabs-heading">';
-			foreach( $themify_write_panels as $write_panel ) {
-
-				$_metabox = isset( $write_panel['metabox'] ) ? $write_panel['metabox'] : 'themify-meta-boxes';
-				if( $metabox['id'] != $themify_metaboxes[$_metabox]['id'] )
-					continue;
-
-				if( trim( $write_panel['pages'] ) == $typenow ) {
-					$panel_id = isset( $write_panel['id'] )? $write_panel['id']: sanitize_title( $write_panel['name'] );
-					echo '<li><span><a id="' . esc_attr( $panel_id . 't' ) . '" href="' . esc_attr( '#' . $panel_id ) . '">' . esc_html( $write_panel['name'] ) . '</a></span></li>';
-				}
+			foreach( $tabs as $tab ) {
+				$panel_id = isset( $tab['id'] )? $tab['id']: sanitize_title( $tab['name'] );
+				echo '<li><span><a id="' . esc_attr( $panel_id . 't' ) . '" href="' . esc_attr( '#' . $panel_id ) . '">' . esc_html( $tab['name'] ) . '</a></span></li>';
 			}
 			echo '</ul>';
 			echo '<div class="ilc-btabs themify-tabs-body">';
-			foreach( $themify_write_panels as $write_panel ) {
-
-				$_metabox = isset( $write_panel['metabox'] ) ? $write_panel['metabox'] : 'themify-meta-boxes';
-				if( $metabox['id'] != $themify_metaboxes[$_metabox]['id'] )
-					continue;
-
-				$pages = explode(",", $write_panel['pages']);
-				$check = false;
-
-				foreach( $pages as $page ) {
-					if( get_post_type($post) ) {
-						if(get_post_type($post) == $page){
-							$check = true;
-						}
-					} else {
-						if( (trim($page) == 'post' && $_GET['post_type'] == '') || $_GET['post_type'] == trim($page) ) {
-							$check = true;
-						}
-					}
-				}
-
-				if($check){
-					$panel_id = isset( $write_panel['id'] )? $write_panel['id']: sanitize_title( $write_panel['name'] );
+			foreach( $tabs as $tab ) {
+				$panel_id = isset( $tab['id'] )? $tab['id']: sanitize_title( $tab['name'] );
 				?>
 				<div id="<?php echo esc_attr( $panel_id ); ?>" class="ilc-tab themify_write_panel">
 
@@ -192,55 +247,57 @@ class Themify_Metabox {
 					<!-- /alerts -->
 
 					<?php
-					foreach( $write_panel['options'] as $meta_box ) :
+					foreach( $tab['options'] as $field ) :
 						$toggle_class = '';
-						if( isset( $meta_box['display_callback'] ) && is_callable( $meta_box['display_callback'] ) ) {
-							$show = (bool) call_user_func( $meta_box['display_callback'], $meta_box );
+						if( isset( $field['display_callback'] ) && is_callable( $field['display_callback'] ) ) {
+							$show = (bool) call_user_func( $field['display_callback'], $field );
 							if( ! $show ) { // if display_callback returns "false",
 								continue;  // do not output the field
 							}
 						}
 
-						$meta_value = isset($meta_box['name']) ? get_post_meta( $post_id, $meta_box['name'], true ) : '';
+						$meta_value = isset($field['name']) ? get_post_meta( $post_id, $field['name'], true ) : '';
 						$ext_attr = '';
-						if( isset($meta_box['toggle']) ){
+						if( isset($field['toggle']) ){
 							$toggle_class .= 'themify-toggle ';
-							$toggle_class .= (is_array($meta_box['toggle'])) ? implode(' ', $meta_box['toggle']) : $meta_box['toggle'];
-							if ( is_array( $meta_box['toggle'] ) && in_array( '0-toggle', $meta_box['toggle'] ) ) {
+							$toggle_class .= (is_array($field['toggle'])) ? implode(' ', $field['toggle']) : $field['toggle'];
+							if ( is_array( $field['toggle'] ) && in_array( '0-toggle', $field['toggle'] ) ) {
 								$toggle_class .= ' default-toggle';
 							}
 						}
-						if ( isset( $meta_box['class'] ) ) {
+						if ( isset( $field['class'] ) ) {
 							$toggle_class .= ' ';
-							$toggle_class .= is_array( $meta_box['class'] ) ? implode( ' ', $meta_box['class'] ) : $meta_box['class'];
+							$toggle_class .= is_array( $field['class'] ) ? implode( ' ', $field['class'] ) : $field['class'];
 						}
 						$data_hide = '';
-						if ( isset( $meta_box['hide'] ) ) {
-							$data_hide = is_array( $meta_box['hide'] ) ? implode( ' ', $meta_box['hide'] ) : $meta_box['hide'];
+						if ( isset( $field['hide'] ) ) {
+							$data_hide = is_array( $field['hide'] ) ? implode( ' ', $field['hide'] ) : $field['hide'];
 						}
-						if( isset($meta_box['default_toggle']) && $meta_box['default_toggle'] == 'hidden' ){
+						if( isset($field['default_toggle']) && $field['default_toggle'] == 'hidden' ){
 							$ext_attr = 'style="display:none;"';
 						}
-						if( isset($meta_box['enable_toggle']) && $meta_box['enable_toggle'] == true ) {
+						if( isset($field['enable_toggle']) && $field['enable_toggle'] == true ) {
 							$toggle_class .= ' enable_toggle';
 						}
 
+						// @todo
+						$meta_box = $field;
+
 						echo $this->before_meta_field( compact( 'meta_box', 'toggle_class', 'ext_attr', 'data_hide' ) );
 
-						do_action( "themify_metabox/field/{$meta_box['type']}", compact( 'meta_box', 'meta_value', 'toggle_class', 'data_hide', 'ext_attr', 'post_id', 'themify_custom_panel_nonce' ) );
+						do_action( "themify_metabox/field/{$field['type']}", compact( 'meta_box', 'meta_value', 'toggle_class', 'data_hide', 'ext_attr', 'post_id', 'themify_custom_panel_nonce' ) );
 
 						echo $this->after_meta_field();
 
 						// backward compatibility: allow custom function calls in the fields array
-						if( isset( $meta_box['function'] ) && is_callable( $meta_box['function'] ) ) {
-							call_user_func( $meta_box['function'], $meta_box );
+						if( isset( $field['function'] ) && is_callable( $field['function'] ) ) {
+							call_user_func( $field['function'], $field );
 						}
 
 					endforeach; ?>
 				</div>
 				</div>
 				<?php
-				}
 			}
 		echo '</div>';//end .ilc-btabs
 		echo '</div>';//end #themify-meta-box-tabs
