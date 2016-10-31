@@ -19,34 +19,28 @@ class TB_Fancy_Heading_Module extends Themify_Builder_Module {
 	public function get_options() {
 		$options = array(
 			array(
+				'id' => 'heading',
+				'type' => 'text',
+				'label' => __('Heading', 'themify'),
+				'class' => 'fullwidth'
+			),
+			array(
 				'id' => 'sub_heading',
 				'type' => 'text',
 				'label' => __('Sub Heading', 'themify'),
 				'class' => 'large'
 			),
 			array(
-				'id' => 'multi_heading Effect',
-				'type' => 'multi',
-				'label' => __( 'Heading', 'themify' ),
-				'fields' => array(
-					array(
-						'id' => 'heading',
-						'type' => 'text',
-						'label' => __('Heading', 'themify'),
-						'class' => 'fullwidth'
-					),
-					array(
-						'id' => 'heading_tag',
-						'label' => __( 'Tag', 'themify' ),
-						'type' => 'select',
-						'options' => array(
-							'h1' => __( 'h1', 'themify' ),
-							'h2' => __( 'h2', 'themify' ),
-						),
-						'class' => 'small'
-					)
-				)
-			),
+				'id' => 'heading_tag',
+				'label' => __( 'HTML Tag', 'themify' ),
+				'type' => 'select',
+				'options' => array(
+					'h1' => __( 'h1', 'themify' ),
+					'h2' => __( 'h2', 'themify' ),
+					'h3' => __( 'h3', 'themify' )
+				),
+				'class' => 'small'
+			)
 		);
 		return $options;
 	}

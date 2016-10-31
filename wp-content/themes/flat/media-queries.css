@@ -1,47 +1,4 @@
-@media screen and (max-width: 1100px) {
-
-	/************************************************************************************
-	STRUCTURE
-	*************************************************************************************/
-	#pagewrap {
-		max-width: 100%;
-	}
-
-	.pagewidth,
-	.sidebar-none .loops-wrapper.list-post .section-inner,
-	.full_width .themify_builder_row .row_inner,
-	.single .section-inner,
-	.sidebar-none.query-section .page-content {
-		max-width: 94%;
-	}
-
-	/* content */
-	#content {
-		padding: 7% 0 0;
-		width: 67.8%;
-	}
-
-	/* sidebar */
-	#sidebar {
-		padding: 7% 0 5%;
-		width: 26.2%;
-	}
-	#sidebar .secondary {
-		width: 47.4%;
-	}
-
-	/*
-	PORTFOLIO SINGLE
-	================================================ */
-	.sidebar-none.single-portfolio div.post-image,
-	.sidebar-none.single-portfolio figure.post-image	{
-		width: auto;
-		float: none;
-	}
-
-}
-
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1200px) {
 
 	/************************************************************************************
 	HEADER
@@ -76,7 +33,7 @@
 	/************************************************************************************
 	MENU PANEL
 	*************************************************************************************/
-body.mobile-menu-visible {
+	body.mobile-menu-visible {
 		overflow-y: hidden;
 	}
 	/* Mobile Menu Styles */
@@ -235,6 +192,49 @@ body.mobile-menu-visible {
 
 }
 
+@media screen and (max-width: 1100px) {
+
+	/************************************************************************************
+	STRUCTURE
+	*************************************************************************************/
+	#pagewrap {
+		max-width: 100%;
+	}
+
+	.pagewidth,
+	.sidebar-none .loops-wrapper.list-post .section-inner,
+	.full_width .themify_builder_row .row_inner,
+	.single .section-inner,
+	.sidebar-none.query-section .page-content {
+		max-width: 94%;
+	}
+
+	/* content */
+	#content {
+		padding: 7% 0 0;
+		width: 67.8%;
+	}
+
+	/* sidebar */
+	#sidebar {
+		padding: 7% 0 5%;
+		width: 26.2%;
+	}
+	#sidebar .secondary {
+		width: 47.4%;
+	}
+
+	/*
+	PORTFOLIO SINGLE
+	================================================ */
+	.sidebar-none.single-portfolio div.post-image,
+	.sidebar-none.single-portfolio figure.post-image	{
+		width: auto;
+		float: none;
+	}
+
+}
+
 @media screen and (max-width: 780px) {
 
 	/* HEADINGS
@@ -300,6 +300,18 @@ body.mobile-menu-visible {
 		padding-top: 80px; /* padding space for fixed header */
 	}
 
+}
+
+/* WordPress Breaking Points */
+@media screen and (max-width: 782px) {
+	.admin-bar .sidemenu,
+	.admin-bar .fixed-header {
+		top: 46px;
+	}
+	.admin-bar.sidemenu-active.mobile-menu-visible #headerwrap {
+		position: relative;
+		top: 46px;
+	}
 }
 
 @media screen and (max-width: 700px) {
@@ -510,6 +522,23 @@ body.mobile-menu-visible {
 
 }
 
+@media screen and (max-width: 600px) {
+	.admin-bar.sidemenu-active {
+		position: static;
+	}
+	.admin-bar.sidemenu-active.mobile-menu-visible {
+		position: relative;
+		top: -46px;
+	}
+	.admin-bar .sidemenu,
+	.admin-bar .fixed-header,
+	.admin-bar .fixed-header .sidemenu,
+	.admin-bar.sidemenu-active.mobile-menu-visible.fixed-header-on,
+	.admin-bar.sidemenu-active.mobile-menu-visible.fixed-header-on #headerwrap {
+		top: 0;
+	}
+}
+
 @media screen and (max-width: 340px) {
 
 	/* Timeline */
@@ -528,40 +557,12 @@ body.mobile-menu-visible {
 
 }
 
-@media screen and (min-width: 1000px) {
+@media screen and (min-width: 1200px) {
 
 	/* hide other header elements on fixed */
 	.fixed-header #site-logo,
 	.fixed-header #site-description,
 	.fixed-header .social-widget {
 		display: none !important;
-	}
-}
-
-/* WordPress Breaking Points */
-@media screen and (max-width: 782px) {
-	.admin-bar .sidemenu,
-	.admin-bar .fixed-header {
-		top: 46px;
-	}
-	.admin-bar.sidemenu-active.mobile-menu-visible #headerwrap {
-		position: relative;
-		top: 46px;
-	}
-}
-@media screen and (max-width: 600px) {
-	.admin-bar.sidemenu-active {
-		position: static;
-	}
-	.admin-bar.sidemenu-active.mobile-menu-visible {
-		position: relative;
-		top: -46px;
-	}
-	.admin-bar .sidemenu,
-	.admin-bar .fixed-header,
-	.admin-bar .fixed-header .sidemenu,
-	.admin-bar.sidemenu-active.mobile-menu-visible.fixed-header-on,
-	.admin-bar.sidemenu-active.mobile-menu-visible.fixed-header-on #headerwrap {
-		top: 0;
 	}
 }

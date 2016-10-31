@@ -607,6 +607,16 @@ function themify_default_page_layout($data = array()){
                     </select>
                 </p>';
 	/**
+	 * Featured Image dimensions
+	 */
+	$output .= '<p>
+				<span class="label">' . __('Image Size', 'themify') . '</span>
+				<input type="text" class="width2" name="setting-page_featured_image_width" value="' . themify_get( 'setting-page_featured_image_width' ) . '" /> ' . __('width', 'themify') . ' <small>(px)</small>
+				<input type="text" class="width2 show_if_enabled_img_php" name="setting-page_featured_image_height" value="' . themify_get( 'setting-page_featured_image_height' ) . '" /> <span class="show_if_enabled_img_php">' . __('height', 'themify') . ' <small>(px)</small></span>
+				<br /><span class="pushlabel show_if_enabled_img_php"><small>' . __('Enter height = 0 to disable vertical cropping with img.php enabled', 'themify') . '</small></span>
+			</p>';
+
+	/**
 	 * Page Comments
 	 */
 	$pre = 'setting-comments_pages';

@@ -54,63 +54,63 @@ class Themify_Background_Control extends Themify_Control {
 			'center bottom' => __( 'Center Bottom', 'themify' ),
 		);
 		$current_position = isset( $values->position ) ? $values->position : '';
-                $label = $this->show_label && ! empty( $this->label );
+				$label = $this->show_label && ! empty( $this->label );
 		?>
 
 		<?php if ( $label ) : ?>
 			<span class="customize-control-title themify-control-title themify-suba-toggle"><?php echo esc_html( $this->label ); ?></span>
 		<?php endif; ?>
-                <?php if ($label) : ?>                    
-                    <ul class="themify-control-sub-accordeon"><li>            
-                <?php endif;?>
-                    <div class="themify-customizer-brick">
-                            <!-- Background Image -->
-                            <?php $this->render_image( $values, array(
-                                    'image_label' => __( 'Background Image', 'themify' ),
-                            ) ); ?>
+				<?php if ($label) : ?>                    
+					<ul class="themify-control-sub-accordeon"><li>            
+				<?php endif;?>
+					<div class="themify-customizer-brick">
+							<!-- Background Image -->
+							<?php $this->render_image( $values, array(
+									'image_label' => __( 'Background Image', 'themify' ),
+							) ); ?>
 
-                            <!-- Background Attachment or Size -->
-                            <div class="custom-select background-style">
-                                    <select class="image-style">
-                                            <?php foreach ( $styles as $style => $label ) : ?>
-                                                    <option value="<?php echo esc_attr( $style ); ?>" <?php selected( $current_style, $style ); ?>><?php echo esc_html( $label ); ?></option>
-                                            <?php endforeach; ?>
-                                    </select>
-                            </div>
+							<!-- Background Attachment or Size -->
+							<div class="custom-select background-style">
+									<select class="image-style">
+											<?php foreach ( $styles as $style => $label ) : ?>
+													<option value="<?php echo esc_attr( $style ); ?>" <?php selected( $current_style, $style ); ?>><?php echo esc_html( $label ); ?></option>
+											<?php endforeach; ?>
+									</select>
+							</div>
 
-                            <!-- Background Position -->
-                            <div class="custom-select background-position">
-                                    <select class="position-style">
-                                            <?php foreach ( $positions as $position => $label ) : ?>
-                                                    <option value="<?php echo esc_attr( $position ); ?>" <?php selected( $current_position, $position ); ?>><?php echo esc_html( $label ); ?></option>
-                                            <?php endforeach; ?>
-                                    </select>
-                            </div>
+							<!-- Background Position -->
+							<div class="custom-select background-position">
+									<select class="position-style">
+											<?php foreach ( $positions as $position => $label ) : ?>
+													<option value="<?php echo esc_attr( $position ); ?>" <?php selected( $current_position, $position ); ?>><?php echo esc_html( $label ); ?></option>
+											<?php endforeach; ?>
+									</select>
+							</div>
 
-                            <!-- No Background Image-->
+							<!-- No Background Image-->
 
-                            <div class="no-image">
-                                    <?php $noimage_id = $this->id . '_noimage'; ?>
-                                    <input id="<?php echo esc_attr( $noimage_id ); ?>" type="checkbox" class="disable-control" <?php checked( $noimage, 'noimage' ); ?> value="noimage"/>
-                                    <label for="<?php echo esc_attr( $noimage_id ); ?>">
-                                            <?php _e( 'No Background Image', 'themify' ); ?>
-                                    </label>
-                            </div>
+							<div class="no-image">
+									<?php $noimage_id = $this->id . '_noimage'; ?>
+									<input id="<?php echo esc_attr( $noimage_id ); ?>" type="checkbox" class="disable-control" <?php checked( $noimage, 'noimage' ); ?> value="noimage"/>
+									<label for="<?php echo esc_attr( $noimage_id ); ?>">
+											<?php _e( 'No Background Image', 'themify' ); ?>
+									</label>
+							</div>
 
-                    </div>
+					</div>
 
-                    <div class="themify-customizer-brick">
-                            <?php $this->render_color( $values, array(
-                                    'side_label' => true,
-                                    'color_label' => __( 'Background Color', 'themify' ),
-                            ) ); ?>
-                    </div>
+					<div class="themify-customizer-brick">
+							<?php $this->render_color( $values, array(
+									'side_label' => true,
+									'color_label' => __( 'Background Color', 'themify' ),
+							) ); ?>
+					</div>
 
-                    <input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
-                <?php if ($label) : ?>
-                        </li>
-                    </ul>
-                <?php endif;?>
+					<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
+				<?php if ($label) : ?>
+						</li>
+					</ul>
+				<?php endif;?>
 		<?php
 	}
 }

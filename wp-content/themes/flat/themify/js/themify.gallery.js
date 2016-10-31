@@ -12,6 +12,7 @@ ThemifyGallery = {
 		lightbox: themifyScript.lightbox.lightboxSelector,
 		lightboxGallery: themifyScript.lightbox.gallerySelector,
 		lightboxContentImages: themifyScript.lightbox.lightboxContentImagesSelector,
+		is_touch:$('body').hasClass('touch'),
 		context: document
 	},
 	
@@ -48,6 +49,9 @@ ThemifyGallery = {
 			$(context).on('click', ThemifyGallery.config.lightbox, function(event){
 				event.preventDefault();
 				var $self = $(this),
+					targetItems,
+					$groupItems = $self.closest( '.themify_builder_row' ).find( '.themify_lightbox' ),
+					index = $groupItems.length > 1 ? $groupItems.index( this ) : 0,
 					$link = ( $self.find( '> a' ).length > 0 ) ? $self.find( '> a' ).attr( 'href' ) : $self.attr('href'),
 					$type = ThemifyGallery.getFileType($link),
 					$title = (typeof $(this).children('img').attr('alt') !== 'undefined') ? $(this).children('img').attr('alt') : $(this).attr('title'),
@@ -56,21 +60,39 @@ ThemifyGallery = {
 					if($iframe_width.indexOf("%") == -1) $iframe_width += 'px';
 					if($iframe_height.indexOf("%") == -1) $iframe_height += 'px';
 
+				if( $groupItems.length > 1 ) {
+					targetItems = [];
+
+					$groupItems.each( function( i, el ) {
+						targetItems.push( {
+							src: $(el).attr( 'href' ),
+							title: (typeof $(el).find('img').attr('alt') !== 'undefined') ? $(el).find('img').attr('alt') : '',
+							type: ThemifyGallery.getFileType( $(el).attr( 'href' ) )
+						} );
+					} );
+
+				} else {
+					targetItems = {
+						src: $link,
+						title: $title,
+					};
+				}
+
 				if( ThemifyGallery.isYoutube( $link ) ) {
 					// for youtube videos, sanitize the URL properly
 					$link = ThemifyGallery.getYoutubePath( $link );
 				}
+				var iOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream,
+					iOSScrolling = iOS ? 'scrolling="no" ' : '';
+
 				var $args = {
-					items: {
-						src: $link,
-						title: $title
-					},
+					items: targetItems,
 					type: $type,
 					iframe: {
 						markup: '<div class="mfp-iframe-scaler" style="max-width: '+$iframe_width+' !important; height: '+$iframe_height+';">'+
 						'<div class="mfp-close"></div>'+
 						'<div class="mfp-iframe-wrapper">'+
-						'<iframe class="mfp-iframe" frameborder="0" allowfullscreen></iframe>'+
+						'<iframe class="mfp-iframe" '+ iOSScrolling +'noresize="noresize" frameborder="0" allowfullscreen></iframe>'+
 						'</div>'+
 						'</div>'
 					},
@@ -93,11 +115,20 @@ ThemifyGallery = {
 						}
 					}
 				};
+
+				if( $groupItems.length > 1 ) {
+					$.extend( $args, {
+						gallery: {
+							enabled: true
+						}
+					} );
+				}
+
 				if($self.find('img').length > 0) {
 					$.extend( $args, {
 						mainClass: 'mfp-with-zoom',
 						zoom: {
-							enabled: true,
+							enabled: !ThemifyGallery.config.is_touch,
 							duration: 300,
 							easing: 'ease-in-out',
 							opener: function() {
@@ -114,7 +145,7 @@ ThemifyGallery = {
 				if(ThemifyGallery.isInIframe()) {
 					window.parent.jQuery.magnificPopup.open($args);
 				} else {
-					$.magnificPopup.open($args);
+					$.magnificPopup.open($args, index);
 				}
 			});
 			
@@ -153,7 +184,7 @@ ThemifyGallery = {
 									$.extend( $args, {
 										mainClass: 'mfp-with-zoom',
 										zoom: {
-											enabled: true,
+											enabled: !ThemifyGallery.config.is_touch,
 											duration: 300,
 											easing: 'ease-in-out',
 											opener: function() {
@@ -199,7 +230,7 @@ ThemifyGallery = {
 						items: images,
 						mainClass: 'mfp-with-zoom',
 						zoom: {
-							enabled: true,
+							enabled: !ThemifyGallery.config.is_touch,
 							duration: 300,
 							easing: 'ease-in-out',
 							opener: function(openerElement) {

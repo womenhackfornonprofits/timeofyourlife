@@ -42,6 +42,13 @@
 		this.init();
 	}
 
+	/**
+	 * Remove both hash tag and the trailing slash from URL
+	 */
+	function cleanup_url( url ) {
+		return url.replace( /#.*$/, '' ).replace( /\/$/, '' );
+	}
+
 	Plugin.prototype = {
 		getOffset: function () {
 			var $wpAdminBar = $('#wpadminbar'), $headerWrap = $('#headerwrap'),
@@ -239,7 +246,7 @@
 						classToScroll = href.replace(/#/, self.options.prefix);
 
 				// If the section exists in this page
-				if ($(classToScroll).length > 0) {
+				if ( cleanup_url( window.location.href ) == cleanup_url( $( this ).prop( 'href' ) ) && $( classToScroll ).length > 0 ) {
 					// Set state
 					self.scrolling = true;
 					// Perform scroll

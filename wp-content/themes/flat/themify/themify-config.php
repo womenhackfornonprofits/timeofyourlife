@@ -34,7 +34,7 @@ function themify_config_init() {
 
 	/* 	Theme Config
  	***************************************************************************/
-	define( 'THEMIFY_VERSION', '2.8.9' ); 
+	define( 'THEMIFY_VERSION', '2.9.0' ); 
 
 	/*	Load Config from theme-config.php or custom-config.php
  	***************************************************************************/
@@ -231,6 +231,9 @@ add_action( 'themify_metabox/field/featimgdropdown', 'themify_meta_field_featimg
 add_action( 'themify_metabox/field/page_builder', 'themify_meta_field_page_builder', 10, 1 );
 
 require_once( THEMIFY_DIR . '/google-fonts/functions.php' );
+
+// Page Options, disabled at the moment
+// require_once( THEMIFY_DIR . '/page-options/themify-pageoptions.php' );
 
 /**
  * Show recommended or full Google fonts list
@@ -436,6 +439,8 @@ add_action( 'init', 'themify_flush_rewrite_rules_after_manual_update', 99 );
  * @since 2.8.9
  */
 function themify_adjust_page_settings_for_layouts( $args ) {
+	if( 'custom' == $args['layout_group'] )
+		return;
 	$post_id = $args['current_builder_id'];
 	$post = get_post( $post_id );
 	update_post_meta( $post_id, 'content_width', 'full_width' );

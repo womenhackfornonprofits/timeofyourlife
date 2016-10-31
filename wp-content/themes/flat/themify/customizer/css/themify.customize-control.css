@@ -361,12 +361,14 @@ li.customize-control[class*=themify] .selected {
 .color-picker .minicolors-swatch {
 	height: 26px;
 	width: 26px;
+	top: 0;
+	left: 0;
 }
 .color-picker input[type=text].minicolors-input {
 	height: 28px;
 	border-color: #bbb;
-	padding-left: 5px;
-	width: 90px;
+	padding-left: 34px;
+	width: 115px;
 	font-family: monospace;
 	position: absolute;
 }
@@ -398,7 +400,7 @@ li.customize-control[class*=themify] .selected {
 	position: relative;
 	height: 152px;
 	display: block !important;
-	top: -1px;
+	top: 27px;
 }
 
 /* Remove Buttons

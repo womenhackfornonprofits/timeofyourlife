@@ -1,0 +1,560 @@
+/**
+ * 	Tabs for custom write panels
+ */
+.themify-tabs-heading {
+	display: block;
+	overflow: hidden;
+	margin-bottom: -1px;
+}
+.themify-tabs-heading li {
+	float: left;
+	margin: 0 2px 0 0;
+	background: #ebebeb;
+	border: 1px solid #dedede;
+}
+.themify-tabs-heading li:hover {
+	background: #f5f5f5;
+}
+#poststuff .themify-tabs-heading li span {
+	box-shadow: none;
+	border-bottom: none;
+	font-weight: bold;
+	font-family: sans-serif;
+	background-image: none;
+}
+.themify-tabs-heading li a {
+	text-decoration: none;
+	font-size: 11px;
+	color: #555;
+	padding: 5px 10px;
+	display: block;
+	outline: none;
+	box-shadow: none;
+}
+.themify-tabs-heading .select,
+.themify-tabs-heading .select:hover {
+	background: #fff;
+	border-bottom: 1px solid #fff;
+}
+.themify-tabs-heading .select span {
+	background: none;
+}
+.themify-tabs-heading .select a {
+	cursor: default;
+}
+#poststuff .inside .themify_write_panel {
+	display: none;
+	border-radius: 0;
+	padding: 10px 0;
+}
+
+/* custom write panel layout options
+---------------------------------------------------------------*/
+#poststuff .inside .themify_write_panel {
+	border: 1px solid #dedede;
+	border-radius: 4px;	
+	margin: 0 0 5px 0;
+}
+
+#poststuff .inside .themify_write_panel h3:hover {
+	cursor: default;
+}
+
+#poststuff .inside .themify_write_panel h3 {
+	background: #F1F1F1 no-repeat 0 100%;
+	font-size: 11px;
+}
+
+#poststuff .inside .themify_write_panel input.small {
+	width: 50px;	
+}
+.themify_input_field.medium {
+	width: 180px;
+}
+
+.preview-icon img {
+	margin: 5px 8px 5px 0;
+	padding: 2px;
+	background: #fff;
+	border: solid 1px #D2D2D2;
+	border-radius: 2px;
+}
+
+a.preview-icon {
+	outline: none;
+	text-decoration: none;
+	display: inline-block;
+	margin-top: -5px;
+	box-shadow: none;
+}
+
+.preview-icon.selected {
+	background: none;
+}
+
+.preview-icon.selected img, .preview-icon.selected img:hover {
+	border-color: #FF8D00;
+	background: #FFE0AF;
+}
+
+.preview-icon img:hover  {
+	border-color: #6CD6FF;
+	background: #F3FCFF;
+}
+
+.selectit { margin-right: 5px; }
+
+.hide-if {
+	opacity: 1;
+	visibility: visible;
+	max-height: 140px;
+	-webkit-transition: all .2s ease-in-out;
+	transition: all .2s ease-in-out;
+}
+.hide-if.conceal {
+	opacity: 0;
+	visibility: hidden;
+}
+.hide-if.collapse {
+	max-height: 0;
+	margin: 0 !important;
+	padding: 0 !important;
+	overflow: hidden;
+}
+
+.themify_field_row:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+.themify_field_row {
+	padding: 5px 5px 10px 0;
+}
+.themify_field_row.disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.themify_field {
+	float: left;
+	width: 75%;
+	position: relative;
+}
+.themify_field-multi {
+	margin-bottom: 15px;
+}
+
+.themify_upload_buttons,
+.themify_upload_field,
+.themify_upload_meta {
+	margin-bottom: 10px;
+	display: block;
+}
+		
+.themify_input_field {
+	width: 90%;
+}
+
+.themify_upload_field {
+	margin: 0 10px 0 0;
+	width: 75%;
+}
+
+.themify_upload_buttons a {
+	position: absolute;
+}
+
+.themify_upload_buttons .plupload-upload-uic {
+	display: inline-block;
+}
+	
+.themify_upload_buttons object {
+	position: absolute;
+}
+	
+.themify_upload_meta {
+	clear: left;
+}
+
+.themify_upload_preview {
+	float: right;
+	width: 40px;
+	margin-bottom: 5px;
+	display: none;
+	border: 1px solid #CCC;
+	padding: 2px;
+	background: #fff;
+}
+	
+.themify_upload_preview img {
+	vertical-align: bottom;
+}
+.themify_field_title {
+	width: 25%;
+	padding: 0 15px 10px 0;
+	float: left;
+	box-sizing: border-box;
+	max-width: 220px;
+}
+@media screen and (max-width: 600px) {
+	.themify_field_title {
+		width: auto;
+		max-width: 100%;
+		float: none;
+	}
+}
+	
+.themify_field_description {
+	clear: left;
+	display: block;
+	color: #999;
+	padding: 5px 0 5px 1px;
+}
+	
+.themify_checkbox_description {
+	color: #666;
+}
+
+.themify_field .themify_featimg_remove {
+	float: right;
+	margin-left: -15px;
+	margin-top: -5px;
+	position: relative;
+	z-index: 999;
+}
+.themify_field .themify_featimg_remove.hide {
+	display: none;
+}
+.themify_field .themify_featimg_remove a {
+	background: url('../img/icon-delete.png') 0 0 no-repeat;
+	width: 20px;
+	height: 20px;
+	text-indent: -999px;
+	overflow: hidden;
+	display: block;
+}
+.themify_field .themify_medialib_wrapper {
+	margin-top: 5px;
+	display: inline-block;
+}
+.themify_field .themify_medialib_wrapper em,
+.themify_field .themify_medialib_wrapper a {
+	display: inline-block;
+	position: relative;
+}
+.themify_field .themify_video_remove {
+	float: right;
+	margin-top: -20px;
+	top: 24px;
+	right: 4px;
+}
+.videocontrol .themify_upload_field {
+	width: 100%;
+	padding-right: 27px;
+}
+
+/* Assignments field type
+---------------------------------------------------------------*/
+.themify-assignments .ui-widget-header {
+	border: 1px solid #aaaaaa;
+	background: #cccccc;
+	color: #222222;
+	font-weight: bold;
+	border-top-right-radius: 4px;
+	border-top-left-radius: 4px;
+}
+.themify-assignments .ui-tabs-nav li {
+	list-style: none;
+	float: left;
+	position: relative;
+	top: 0;
+	margin: 1px .2em 0 0;
+	border-bottom: 0;
+	padding: 0;
+	white-space: nowrap;
+	border: 1px solid #d3d3d3;
+	background: #e6e6e6;
+	font-weight: normal;
+	color: #555555;
+}
+.themify-assignments .ui-tabs-nav a {
+	float: left;
+	padding: .5em .7em !important;
+	text-decoration: none;
+	color: #666;
+}
+.themify-assignments .ui-tabs-nav li.ui-tabs-active {
+	border: 1px solid #aaaaaa;
+	background: #ffffff;
+	font-weight: normal;
+	color: #212121;
+	margin-bottom: -1px;
+	padding-bottom: 1px;
+}
+.themify-assignments .ui-tabs-nav li.ui-tabs-active a {
+	cursor: text;
+	color: inherit;
+	border: none;
+	text-decoration: none;
+}
+.themify-assignments .ui-tabs-panel {
+	display: block;
+	border-width: 0;
+	padding: 20px 0 10px !important;
+	background: none;
+	overflow: visible;
+}
+.themify-assignments.ui-tabs,
+.themify-assignments .ui-tabs {
+	border: none;
+}
+.themify-assignments.ui-tabs .ui-tabs-panel {
+	padding: 0;
+}
+.themify-assignments .ui-tabs .ui-widget-header,
+.themify-assignments .ui-tabs .ui-widget-header li {
+	background: none;
+	border: none;
+}
+.themify-assignments.ui-tabs .themify-assignment-options {
+}
+.themify-assignments.ui-tabs .themify-assignment-options label {
+	display: block !important;
+	width: 19%;
+	margin-right: 1%;
+	float: left;
+}
+.themify-assignments.ui-tabs .themify-assignment-options label:nth-child(4n+1) {
+	clear: left;
+}
+
+/* Query Pages
+---------------------------------------------------------------*/
+.query-field-hide {
+	display: none;
+}
+
+/* Multi
+---------------------------------------------------------------*/
+.themify_field-multi label {
+	display: inline-block;
+	margin-right: 7px;
+	margin-bottom: 10px;
+	vertical-align: top;
+}
+
+/* Color Picker
+---------------------------------------------------------------*/
+.themify_field_row .minicolors-swatch {
+	width: 29px;
+	height: 29px;
+	border: 1px solid #ccc;
+	border-right: none;
+	background: url(../img/jquery.minicolors.png) -80px 0;
+	margin: 0 -4px 0 0;
+}
+.themify_field_row .minicolors-swatch span {	
+	float: left;
+	margin: 0;
+	background: none;
+	height: 29px;
+	width: 29px;
+}
+.themify_field_row .minicolors-focus .minicolors-swatch span {
+	background-position: right top;
+}
+.themify_field_row .minicolors-focus {
+	z-index: 3;
+}
+.themify_field_row .themify_input_field.colorSelectInput {
+	margin-right: 0;
+	margin-top: 0;
+	width: 90px;
+}
+
+.themify_field_row .clearColor {
+	color: #000 !important;
+	width: 20px;
+	background: none !important;
+	position: absolute;
+	bottom: 1px;
+	left: 95px;
+	margin: 0 !important;
+	padding: 0;
+	border: none !important;
+	box-shadow: none !important;
+	display: none;
+	line-height: 1.9;
+	font-size: 16px;
+}
+.themify_field_row .clearColor:hover,
+.themify_field_row .clearColor:active,
+.themify_field_row .clearColor:focus {
+	color: #ea533b !important;
+}
+.themify_field_row .clearColor:active {
+	opacity: .8;
+}
+
+/* Themify Date Picker
+---------------------------------------------------------------*/
+input.themifyDatePicker {
+	margin-right: 5px;
+	color: #333;
+}
+.themify_field-date {
+	position: relative;
+}
+.disableDateField {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 180px;
+	height: 28px;
+}
+.themifyOpacityTransition {
+	visibility: hidden;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=0)";
+	opacity: 0;
+	-webkit-transition: opacity 0.2s ease-out;
+	transition: opacity 0.2s ease-out;
+}
+.themifyFadeIn {
+	visibility: visible;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=100)";
+	opacity: 1;
+}
+.themifyDateTimePickerPanel.ui-datepicker {
+	border-color: #bbb;
+	box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+	font: normal 600 1.1em "Open Sans";
+	background: #fff;
+}
+.themifyDateTimePickerPanel.ui-datepicker .ui-datepicker-header {
+	background: none;
+	border: none;
+	border-bottom: 1px solid #eee;
+	border-radius: 0;
+	padding-bottom: 5px;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui-datepicker-prev, .ui-datepicker.themifyDateTimePickerPanel .ui-datepicker-next {
+	border: 1px solid #eee;
+	-webkit-transition: border-color 0.2s ease-out;
+	transition: border-color 0.2s ease-out;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui-datepicker-prev .ui-icon, .ui-datepicker.themifyDateTimePickerPanel .ui-datepicker-next .ui-icon {
+	background: none;
+	text-indent: -99999em;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui-datepicker-prev, .ui-datepicker.themifyDateTimePickerPanel .ui-datepicker-next {
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	font-family: "dashicons";
+	box-sizing: border-box;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui-datepicker-prev:after {
+	content: "\f141";
+	position: absolute;
+	top: 2px;
+	font-size: 20px;
+	left: 0;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui-datepicker-next:after {
+	content: "\f139";
+	position: absolute;
+	top: 2px;
+	font-size: 20px;
+	left: 0;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui-datepicker-next-hover {
+	border: 1px solid #999;
+	background: none;
+	right: 2px;
+	top: 2px;
+	cursor: pointer;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui-datepicker-prev-hover {
+	border: 1px solid #999;
+	background: none;
+	left: 2px;
+	top: 2px;
+	cursor: pointer;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui-state-default {
+	background: #f6f6f6;
+	border-radius: 3px;
+	border: 2px solid #eee;
+	-webkit-transition: border-color 0.2s ease-out;
+	transition: border-color 0.2s ease-out;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui-state-active, .ui-datepicker.themifyDateTimePickerPanel .ui-state-default:active {
+	border: 2px solid #F90;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui-state-highlight {
+	border: 2px solid #98cee3;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui-datepicker-buttonpane {
+	border-top: 1px solid #eee;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui-datepicker-buttonpane button {
+	font: 400 0.85em "Open Sans";
+	box-shadow: 0 0 2px rgba(0,0,0,0.1);
+	background: #fafafa;
+	border: 2px solid #eee;
+	color: #222;
+	outline: none;
+	opacity: 1;
+}
+.ui-datepicker.themifyDateTimePickerPanel .ui_tpicker_hour_label, .ui-datepicker.themifyDateTimePickerPanel .ui_tpicker_minute_label {
+	padding-top: 6px;
+}
+
+/* Dropdown button */
+.themify_field_row.dropdownbutton-group {
+	display: inline-block;
+	width: 100%;
+	margin: 0 0 0.8em;
+}
+.dropdownbutton-list{
+	float: left;
+	position: relative;
+	margin-right: 10px;
+	margin-bottom: 5px;
+}
+.dropdownbutton-list a {
+	color: inherit;
+	vertical-align: middle;
+	text-decoration: none;
+}
+.dropdownbutton .ddbtn {
+	margin: 4px 0;
+}
+.dropdownbutton {
+	position: absolute;
+	display: none;
+	background: #fff;
+	border: 1px solid #ccc;
+	padding: 3px 5px;
+	width: 120px;
+	z-index: 99;
+	border-radius: 3px;
+	top: 20px;
+}
+.dropdownbutton .ddbtn-label {
+	margin-left: 3px;
+}
+.dropdownbutton-group .first-ddbtn img {
+	background: #fff;
+	border: 1px solid #999;
+	padding: 1px;
+	margin-top: 2px;
+	margin-bottom: 5px;
+	vertical-align: middle;
+	border-radius: 3px;
+}
+.dropdownbutton .ddbtn-hide {
+	display: none;
+}
+.dropdownbutton-list .first-ddbtn .ddbtn-name {
+	margin-left: 5px;
+}

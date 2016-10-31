@@ -33,8 +33,7 @@ var tbLoaderVars, themifyBuilder;
 			var jqxhr = $.post( tbLoaderVars.ajaxurl, {
 				action: 'themify_builder_loader',
 				scripts: tbLoaderVars.assets.scripts,
-				styles: tbLoaderVars.assets.styles,
-				builder_current_url: window.location.href 
+				styles: tbLoaderVars.assets.styles
 			});
 
 			// Allow refreshes to occur again if an error is triggered.
@@ -44,7 +43,7 @@ var tbLoaderVars, themifyBuilder;
 
 			// Success handler
 			jqxhr.done( function( response ) {
-
+	
 				try {
 					response = $.parseJSON( response );
 				} catch(e) {
@@ -55,10 +54,95 @@ var tbLoaderVars, themifyBuilder;
 				if ( ! response ) {
 					return;
 				}
-
+				
+				
 				// Count styles and scripts
 				var countStyles = 0, countScripts = 0;
+				
+				$.ajax({
+					url:tbLoaderVars.ajaxurl,
+					type:'POST',
+					data:{'action':'themify_builder_loader_tpl'},
+					success:function(resp){
+						
+						if (resp) {
+							// Append template script to DOM in requested location
+							document.getElementsByTagName( 'body' )[0].insertAdjacentHTML("beforeend", resp);
+						}
+						
+						$.ajax({
+							url:tbLoaderVars.ajaxurl,
+							type:'POST',
+							data:{'action':'themify_builder_loader_responsive','builder_current_url': window.location.href },
+							success:function(iframe){
+								
+								// Load scripts
+								if ( response.scripts ) {
+									countScripts = response.scripts.length - 1;
 
+									$( response.scripts ).each( function() {
+										var elementToAppendTo = this.footer ? 'body' : 'head';
+
+										// Add script handle to list of those already parsed
+										tbLoaderVars.assets.scripts.push( this.handle );
+
+										// Output extra data, if present
+										if ( this.jsVars ) {
+											var data = document.createElement('script'),
+												dataContent = document.createTextNode( "//<![CDATA[ \n" + this.jsVars + "\n//]]>" );
+
+											data.type = 'text/javascript';
+											data.appendChild( dataContent );
+
+											document.getElementsByTagName( elementToAppendTo )[0].appendChild(data);
+										}
+
+										// Build script object
+										var script = document.createElement('script');
+										script.type = 'text/javascript';
+										script.src = this.src;
+										script.id = this.handle;
+										script.async = false;
+										script.onload = function(){
+											if ( 0 === countScripts ) {
+												// Write themifyBuilder.post_ID
+												if ( themifyBuilder ) {
+													themifyBuilder.post_ID = tbLoaderVars.post_ID;
+												}
+
+												// Remove click event
+												$('body').off('click.tbloader');
+
+												// Initialize Builder
+												// Event replaces $(document).ready() and $(window).load()
+												// Functions hooked to those events must be hooked to this instead
+												$('body').trigger('builderscriptsloaded.themify');
+											}
+											countScripts--;
+										};
+										script.onerror = function() {
+											countScripts--;
+										};
+
+										// Append script to DOM in requested location
+										document.getElementsByTagName( elementToAppendTo )[0].appendChild(script);
+
+									} );
+								}
+							
+								if (iframe) {
+									$(iframe).appendTo('body');
+									$('#themify_builder_site_canvas_iframe').on('load', function(){
+										$('body').trigger('builderiframeloaded.themify');
+									});
+								}
+								
+							}
+						});
+						
+					}
+				});
+				
 				// Load styles
 				if ( response.styles ) {
 					countStyles = response.styles.length - 1;
@@ -90,73 +174,7 @@ var tbLoaderVars, themifyBuilder;
 						}
 					} );
 				}
-
-				// Load scripts
-				if ( response.scripts ) {
-					countScripts = response.scripts.length - 1;
-
-					$( response.scripts ).each( function() {
-						var elementToAppendTo = this.footer ? 'body' : 'head';
-
-						// Add script handle to list of those already parsed
-						tbLoaderVars.assets.scripts.push( this.handle );
-
-						// Output extra data, if present
-						if ( this.jsVars ) {
-							var data = document.createElement('script'),
-								dataContent = document.createTextNode( "//<![CDATA[ \n" + this.jsVars + "\n//]]>" );
-
-							data.type = 'text/javascript';
-							data.appendChild( dataContent );
-
-							document.getElementsByTagName( elementToAppendTo )[0].appendChild(data);
-						}
-
-						// Build script object
-						var script = document.createElement('script');
-						script.type = 'text/javascript';
-						script.src = this.src;
-						script.id = this.handle;
-						script.async = false;
-						script.onload = function(){
-							if ( 0 === countScripts ) {
-								// Write themifyBuilder.post_ID
-								if ( themifyBuilder ) {
-									themifyBuilder.post_ID = tbLoaderVars.post_ID;
-								}
-
-								// Remove click event
-								$('body').off('click.tbloader');
-
-								// Initialize Builder
-								// Event replaces $(document).ready() and $(window).load()
-								// Functions hooked to those events must be hooked to this instead
-								$('body').trigger('builderscriptsloaded.themify');
-							}
-							countScripts--;
-						};
-						script.onerror = function() {
-							countScripts--;
-						};
-
-						// Append script to DOM in requested location
-						document.getElementsByTagName( elementToAppendTo )[0].appendChild(script);
-
-					} );
-				}
-
-				if ( response.builder_responsive ) {
-					$(response.builder_responsive).appendTo('body');
-					$('#themify_builder_site_canvas_iframe').on('load', function(){
-						$('body').trigger('builderiframeloaded.themify');
-					});
-				}
-
-				if ( response.tmpl ) {
-					// Append template script to DOM in requested location
-					document.getElementsByTagName( 'body' )[0].insertAdjacentHTML("beforeend", response.tmpl);
-				}
-
+				
 			});
 
 		});

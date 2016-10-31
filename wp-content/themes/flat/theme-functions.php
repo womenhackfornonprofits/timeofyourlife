@@ -8,7 +8,7 @@
  *  					Copyright (C) Themify
  * 						http://themify.me
  *
- *  To add custom PHP functions to the theme, create a new 'custom-functions.php' file in the theme folder.
+ *  To add custom PHP functions to the theme, create a child theme (https://themify.me/docs/child-theme) and add it to the child theme functions.php file.
  *  They will be added to the theme automatically.
  * 
  ***************************************************************************/

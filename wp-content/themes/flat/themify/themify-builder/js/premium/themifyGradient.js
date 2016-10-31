@@ -246,7 +246,6 @@
 			if( $input.length < 1 ) {
 				$input = $( '<input type="text" class="themify-color-picker" />' );
 				$input.appendTo( $pointColor ).minicolors( {
-					format: 'rgb',
 					opacity : true,
 					change: function( value, opacity ) {
 						var rgb = self.hexToRgb( value );

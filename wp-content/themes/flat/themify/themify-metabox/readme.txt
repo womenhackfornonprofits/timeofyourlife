@@ -4,7 +4,7 @@ Plugin Name: Themify Metabox
 Tags: metabox, meta-box, fields, settings, option, custom-fields, admin
 Requires at least: 3.0
 Tested up to: 4.6
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 
 Metabox creation tool with advanced features.
 
@@ -38,6 +38,9 @@ Supported field types
 * optimize the data saving for custom fields
 * add "default" parameter to meta fields: the custom field is not saved if it's equivalent to default parameter
 * fix gallery field type showing double label
+* update minicolors script
+* add rgba support to colorpicker inputs
+* fix compatibility with EDD plugin
 
 = 1.0.1 =
 * support for custom fields in user profile screen

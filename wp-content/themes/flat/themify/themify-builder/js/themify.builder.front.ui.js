@@ -250,8 +250,10 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 
 			// shortcut tabs
 			if (ThemifyPageBuilder.isShortcutModuleStyling && $('a[href="#themify_builder_options_styling"]').length ) {
-				$('a[href="#themify_builder_options_styling"]').trigger('click');
-				ThemifyPageBuilder.isShortcutModuleStyling = false;
+				setTimeout(function(){
+					$('a[href="#themify_builder_options_styling"]').trigger('click');
+					ThemifyPageBuilder.isShortcutModuleStyling = false;
+				}, 80);
 			}
             ThemifyBuilderCommon.fontPreview($('#themify_builder_lightbox_container'),moduleSettings);
 		},
@@ -428,7 +430,7 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 							}
 							var value = hex.replace('#', '') + sep + opacity;
 
-							var $cssRuleInput = this.parent().parent().find('.builderColorSelectInput');
+							var $cssRuleInput = $(this).parent().parent().find('.builderColorSelectInput');
 							$cssRuleInput.val(value);
 
 							$colorDisplay.val(hex.replace('#', ''));
@@ -2244,6 +2246,10 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 					//
 					if (!previewOnly) {
 						ThemifyBuilderCommon.showLoader('show');
+
+						if( $('.tb-import-layout-button').length ) {
+							$('.tb-import-layout-button').remove();
+						}
 					}
 				},
 				success: function(data) {
@@ -2385,6 +2391,9 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 					if (is_edit) {
 						$('body').addClass('themify_builder_active themify_builder_front');
 						self.newRowAvailable();
+						if( $( '.module_row ' ).length < 2 ) {
+							self.importLayoutButton();
+						}
 						self.moduleEvents();
 						self._selectedGridMenu();
 						self.checkUnload();
@@ -2442,6 +2451,8 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 
 				if ($parent.find('.themify_builder_module_front').length > 0 || $container.find('.themify_builder_row:visible').length == 0) {
 					$template.css('visibility', 'visible').appendTo($container);
+
+					//$container.append( '<a href="#" class="tb-import-layout-button">' + themifyBuilderCommon.text_import_layout_button + '</a>' );
 					self._selectedGridMenu($template);
 				}
 			});
@@ -4521,6 +4532,18 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 				document.body.style.height = $(ThemifyPageBuilder.responsiveFrame.contentWindow.document).height() + 'px'; // Set the same height as iframe content height
 				ThemifyPageBuilder.responsiveFrame.contentWindow.scrollTo(0, $(window).scrollTop());
 			}
+		},
+		importLayoutButton: function() {
+			var self = this;
+			$('.themify_builder_content')
+				.not('.not_editable_builder')
+				.append( '<a href="#" class="tb-import-layout-button">' 
+					+ themifyBuilderCommon.text_import_layout_button + '</a>' );
+
+			$( 'body' ).on( 'click', '.tb-import-layout-button', function( e ) {
+				e.preventDefault();
+				self.builderLoadLayout(e);
+			} );
 		}
 	};
 
@@ -4636,11 +4659,11 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 						return false;
 					}
 					var $data = self.getValue(colorType),
-						$selector = $data.selector;
+						$selector = $data.selector,
+						$prop = {};
 					if ($data) {
-						self.setLiveStyle({
-							[$data.prop]: rgbaString
-						}, $selector);
+						$prop[ $data.prop ] = rgbaString;
+						self.setLiveStyle($prop, $selector);
 					}
 				}
 			});
@@ -4712,7 +4735,8 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 
 			$('body').delegate(self.style_tab + ' input[type="text"]', 'keyup', function() {
 				var $id = $(this).prop('id'),
-					$data = self.getValue($id);
+					$data = self.getValue($id),
+					$prop = {};
 				if ($data) {
 					var $val = $.trim($(this).val());
 					if ($('#' + $id + '_unit').length > 0) {
@@ -4732,9 +4756,8 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 						$val += 'px';
 						
 					}
-					self.setLiveStyle({
-						[$data.prop]: $val
-					}, $data.selector);
+					$prop[ $data.prop ] = $val;
+					self.setLiveStyle($prop, $data.selector);
 				}
 			});
 			$('body').delegate(self.style_tab + ' [id$="_unit"]', 'change', function() {
@@ -5004,14 +5027,16 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 		ThemifyLiveStyling.prototype.bindBackgroundGradient = function($id,$val,$return) {
 			var self = this;
 				if (self.isInit) {
-					var $data = self.getValue($id);
+					var $data = self.getValue($id),
+						$prop = {};
 					if ($data) {
 						$val = $val.replace(/background-image:/ig,'').split(";");
 						var $vendors = {'moz':0,'webkit':4,'o':2,'ms':3},
 							$pref = getVendorPrefix(),
 							$val = $vendors[$pref] && $val[$vendors[$pref]]?$val[$vendors[$pref]]:$val[4];
 							if(!$return){
-								self.setLiveStyle({[$data.prop]: $val}, $data.selector);
+								$prop[ $data.prop ] = $val;
+								self.setLiveStyle($prop, $data.selector);
 							}
 							else{
 								return $val;
@@ -5193,12 +5218,11 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 			});
 		};		
 		ThemifyLiveStyling.prototype.setApplyBorder = function(id,value,type) {
-			var $data = this.getValue(id);
+			var $data = this.getValue(id),
+				$prop = {};
 			if ($data) {
-				
-				this.setLiveStyle({
-					['border-'+type]: type==='width'?(value>0?value+'px':'0'):value
-				}, $data.selector);
+				$prop[ 'border-'+type ] = type==='width'?(value>0?value+'px':'0'):value;
+				this.setLiveStyle($prop, $data.selector);
 			}
 		};
 		
@@ -5211,7 +5235,8 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 				}
 			   
 				var $id = $(this).is('select') || $(this).hasClass('themify-builder-uploader-input') ? $(this).prop('id') : $(this).parent('.tfb_lb_option').prop('id'),
-					$data = self.getValue($id);
+					$data = self.getValue($id),
+					$prop = {};
 				if ($data) {
 					var $val = $(this).val(),
 						$selector = $data.selector;
@@ -5243,9 +5268,8 @@ var ThemifyPageBuilder, ThemifyLiveStyling, ThemifyBuilderCommon, tinyMCEPreInit
 						}
 						
 					}
-					self.setLiveStyle({
-						[$data.prop]: $val
-					}, $selector);
+					$prop[ $data.prop ] = $val;
+					self.setLiveStyle($prop, $selector);
 				}
 			});
 		};

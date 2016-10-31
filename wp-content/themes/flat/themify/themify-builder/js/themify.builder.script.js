@@ -381,7 +381,6 @@ var ThemifyBuilderModuleJs;
 				self.backgroundScrolling();
 			if (self._isTouch()) {
 				self.fullheight();
-				return;
 			}
 			self.fullwidthVideo();
 		},
@@ -830,18 +829,19 @@ var ThemifyBuilderModuleJs;
 		},
 		carousel: function () {
 			if ($('.themify_builder_slider').length > 0) {
-			
 				var $self = this;
-				if(typeof $.fn.carouFredSel==='undefined'){
-					Themify.LoadAsync(themify_vars.url + '/js/carousel.js', function () {
-						$self.carouselCalback();
-					}, null, null, function () {
-						return ('undefined' !== typeof $.fn.carouFredSel);
-					});
-				}
-				else{
-					$self.carouselCalback();
-				}
+				Themify.LoadAsync(themify_vars.url + '/js/jquery.imagesloaded.min.js', function () {
+						if('undefined' === typeof $.fn.carouFredSel){
+							Themify.LoadAsync(themify_vars.url + '/js/carousel.js', $self.carouselCalback.bind($self), null, null, function () {
+								return ('undefined' !== typeof $.fn.carouFredSel);
+							});
+						}
+						else{
+							$self.carouselCalback();
+						}
+				}, null, null, function () {
+					return ('undefined' !== typeof $.fn.imagesLoaded);
+				});
 			}
 
 		},
@@ -951,7 +951,7 @@ var ThemifyBuilderModuleJs;
 
 
 				if (img_length > 0) {
-					$(this).find('img').themifyBuilderImagesLoaded(function () {
+					$this.imagesLoaded().always(function () {
 						self.carouselInitSwipe($this, $args);
 					});
 				} else {
@@ -1290,7 +1290,7 @@ var ThemifyBuilderModuleJs;
 		isResponsiveFrame: false,
 		parallaxScrollingInit: function(){
 			// Custom parallax
-			if ( $('[data-parallax-element-speed]').length && ! this.isResponsiveFrame ) {
+			if ( $('[data-parallax-element-speed]').length && ! this.isResponsiveFrame && tbLocalScript.isParallaxScrollActive ) {
 				Themify.LoadAsync(tbLocalScript.builder_url + '/js/premium/themify.parallaxit.js', ThemifyBuilderModuleJs.parallaxScrollingCallback);
 			}
 		},

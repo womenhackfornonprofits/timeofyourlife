@@ -122,6 +122,8 @@ class Themify {
 		$this->unlink_image = themify_get('setting-default_unlink_post_image');
 		$this->auto_featured_image = !themify_check('setting-auto_featured_image')? 'field_name=post_image, image, wp_thumb&' : '';
 		$this->hide_page_image = themify_get( 'setting-hide_page_image' ) == 'yes' ? 'yes' : 'no';
+		$this->image_page_single_width = themify_check( 'setting-page_featured_image_width' ) ? themify_get( 'setting-page_featured_image_width' ) : $this->page_image_width;
+		$this->image_page_single_height = themify_check( 'setting-page_featured_image_height' ) ? themify_get( 'setting-page_featured_image_height' ) : 0;
 		
 		$this->hide_meta = themify_get('setting-default_post_meta');
 		$this->hide_meta_author = themify_get('setting-default_post_meta_author');

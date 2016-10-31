@@ -32,30 +32,30 @@ class Themify_Text_Decoration_Control extends Themify_Control {
 		$font_underline = ! empty( $values->underline ) ? $values->underline : '';
 		$font_linethrough = ! empty( $values->linethrough ) ? $values->linethrough : '';
 		$font_nostyle = ! empty( $values->nostyle ) ? $values->nostyle : '';
-                $label = $this->show_label && ! empty( $this->label );
+				$label = $this->show_label && ! empty( $this->label );
 		?>
 
 		<?php if ($label) : ?>
 			<span class="customize-control-title themify-control-title themify-suba-toggle"><?php echo esc_html( $this->label ); ?></span>
 		<?php endif; ?>
-                <?php if ($label) : ?>                    
-                    <ul class="themify-control-sub-accordeon">
-                        <li>            
-                <?php endif;?>
-                    <!-- TEXT STYLE & DECORATION -->
-                    <div class="themify_font_style themify-customizer-brick">
-                            <button type="button" class="button <?php echo esc_attr( $this->style_is( $font_italic, 'italic' ) ); ?>" data-style="italic"><?php _e( 'i', 'themify' ); ?></button>
-                            <button type="button" class="button <?php echo esc_attr( $this->style_is( $font_normal, 'normal' ) ); ?>" data-style="normal"><?php _e( 'N', 'themify' ); ?></button>
-                            <button type="button" class="button <?php echo esc_attr( $this->style_is( $font_weight, 'bold' ) ); ?>" data-style="bold"><?php _e( 'B', 'themify' ); ?></button>
-                            <button type="button" class="button <?php echo esc_attr( $this->style_is( $font_underline, 'underline' ) ); ?>" data-style="underline"><?php _e( 'U', 'themify' ); ?></button>
-                            <button type="button" class="button <?php echo esc_attr( $this->style_is( $font_linethrough, 'linethrough' ) ); ?>" data-style="linethrough"><?php _e( 'S', 'themify' ); ?></button>
-                            <button type="button" class="button <?php echo esc_attr( $this->style_is( $font_nostyle, 'nostyle' ) ); ?>" data-style="nostyle"><?php _e( '&times;', 'themify' ); ?></button>
-                    </div>
-                    <input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
-                <?php if ($label) : ?>
-                        </li>
-                    </ul>
-                <?php endif;?>
+				<?php if ($label) : ?>                    
+					<ul class="themify-control-sub-accordeon">
+						<li>            
+				<?php endif;?>
+					<!-- TEXT STYLE & DECORATION -->
+					<div class="themify_font_style themify-customizer-brick">
+							<button type="button" class="button <?php echo esc_attr( $this->style_is( $font_italic, 'italic' ) ); ?>" data-style="italic"><?php _e( 'i', 'themify' ); ?></button>
+							<button type="button" class="button <?php echo esc_attr( $this->style_is( $font_normal, 'normal' ) ); ?>" data-style="normal"><?php _e( 'N', 'themify' ); ?></button>
+							<button type="button" class="button <?php echo esc_attr( $this->style_is( $font_weight, 'bold' ) ); ?>" data-style="bold"><?php _e( 'B', 'themify' ); ?></button>
+							<button type="button" class="button <?php echo esc_attr( $this->style_is( $font_underline, 'underline' ) ); ?>" data-style="underline"><?php _e( 'U', 'themify' ); ?></button>
+							<button type="button" class="button <?php echo esc_attr( $this->style_is( $font_linethrough, 'linethrough' ) ); ?>" data-style="linethrough"><?php _e( 'S', 'themify' ); ?></button>
+							<button type="button" class="button <?php echo esc_attr( $this->style_is( $font_nostyle, 'nostyle' ) ); ?>" data-style="nostyle"><?php _e( '&times;', 'themify' ); ?></button>
+					</div>
+					<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
+				<?php if ($label) : ?>
+						</li>
+					</ul>
+				<?php endif;?>
 	<?php
 	}
 

@@ -386,6 +386,9 @@ function themify_enqueue_scripts($page){
 		wp_enqueue_script( 'jquery-ui-core' );
 		wp_enqueue_script( 'jquery-ui-tabs' );
 		wp_enqueue_script( 'jquery-ui-slider' );
+                if( 'themify' == $pagenow){
+                    wp_enqueue_script( 'jquery-ui-autocomplete' );
+                }
 		wp_enqueue_script( 'json2' );
 		wp_enqueue_script( 'plupload-all' );
 		wp_enqueue_script( 'validate' );
@@ -803,7 +806,7 @@ function themify_image( $args ) {
  * @return string String with <img> tag and optional content prepended and/or appended
  */
 function themify_get_image( $args ) {
-	global $themify;
+	global $themify, $wp_version;
 
 	/**
 	 * List of parameters
@@ -826,7 +829,7 @@ function themify_get_image( $args ) {
 		'urlonly' 	 => false,
 		'image_size' => '',
 		'image_meta' => false,
-				'f_image'=>      false
+		'f_image'=>      false
 	) );
 
 	/**
@@ -992,7 +995,7 @@ function themify_get_image( $args ) {
 	if ( empty( $img_url ) && ($args['f_image'] || themify_check( 'setting-auto_featured_image' ) )) {
 
 		$content = get_the_content();
-				$upload_dir = wp_upload_dir();
+		$upload_dir = wp_upload_dir();
 		foreach ( array( 'img', 'embed', 'iframe' ) as $tag ) {
 			$count = substr_count( $content, '<' . $tag );
 			if ( $count >= 1 ) {
@@ -1068,6 +1071,10 @@ function themify_get_image( $args ) {
 		$out = $args['before'] . $out . $args['after'];
 	} else {
 		$out = '';
+	}
+
+	if( version_compare( $wp_version, '4.4', '>=' ) ) {
+		$out = wp_make_content_images_responsive( $out );
 	}
 
 	return $out;
@@ -1217,6 +1224,20 @@ function themify_get( $var, $default = null ) {
 	} else {
 		return $default;
 	}
+}
+
+/**
+ * Get a color value, uses themify_get and sanitizes the value
+ *
+ * @return string
+ */
+function themify_get_color( $var, $default = null ) {
+	$value = themify_get( $var, $default );
+	if( strlen( $value ) == 6 ) {
+		$value = '#' . $value;
+	}
+
+	return $value;
 }
 
 /**
@@ -2086,10 +2107,11 @@ if ( ! function_exists( 'themify_is_touch' ) ) {
  * @since 1.7.4
  */
 function themify_is_image_script_disabled() {
-	if ( themify_check( 'setting-img_settings_use' ) ) {
-		return true;
-	}
-	return false;
+        static $is_enabled = null;
+        if(is_null($is_enabled)){
+            $is_enabled =  themify_check( 'setting-img_settings_use' );
+        }
+	return $is_enabled;
 }
 
 /**
@@ -2118,9 +2140,10 @@ function themify_allow_update() {
  * @return bool
  */
 function themify_has_styling_data() {
-	/* Allow to restore the Styling panel by filtering and returning true */
-	if ( apply_filters( 'themify_show_styling_panel', false ) ) {
-		return true;
+	/* bypass the styling check */
+	$has_styling = apply_filters( 'themify_show_styling_panel', null );
+	if ( ! is_null( $has_styling ) ) {
+		return $has_styling;
 	}
 
 	/**
@@ -2170,17 +2193,19 @@ function themify_get_lightbox_iframe_link( $uri ) {
  * @return array
  */
 function themify_get_cache_dir() {
-	$upload_dir = wp_upload_dir();
+        static $dir_info = null;
+        if(is_null($dir_info)){
+            $upload_dir = wp_upload_dir();
 
-	$dir_info = array(
-		'path'   => $upload_dir['basedir'] . '/themify/',
-		'url'    => $upload_dir['baseurl'] . '/themify/'
-	);
+            $dir_info = array(
+                    'path'   => $upload_dir['basedir'] . '/themify/',
+                    'url'    => $upload_dir['baseurl'] . '/themify/'
+            );
 
-	if( ! file_exists( $dir_info['path'] ) ) {
-		wp_mkdir_p( $dir_info['path'] );
-	}
-
+            if( ! file_exists( $dir_info['path'] ) ) {
+                    wp_mkdir_p( $dir_info['path'] );
+            }
+        }
 	return $dir_info;
 }
 
@@ -2431,16 +2456,20 @@ function themify_before_after_widget_allowed_tags() {
 	 *
 	 * @param array
 	 */
-	return apply_filters( 'themify_before_after_widget_allowed_tags', array(
-		'div'     => array(
-			'id'    => true,
-			'class' => true,
-		),
-		'section' => array(
-			'id'    => true,
-			'class' => true,
-		),
-	));
+        static $allowed_tags = NULL;
+        if(is_null($allowed_tags)){
+            $allowed_tags =apply_filters( 'themify_before_after_widget_allowed_tags', array(
+                                'div'     => array(
+                                        'id'    => true,
+                                        'class' => true,
+                                ),
+                                'section' => array(
+                                        'id'    => true,
+                                        'class' => true,
+                                ),
+                        ));
+        }
+	return $allowed_tags;
 }
 
 /**
@@ -2450,7 +2479,7 @@ function themify_before_after_widget_allowed_tags() {
  *
  * @return mixed|void
  */
-function themify_before_after_widget_title_allowed_tags() {
+function themify_before_after_widget_title_allowed_tags() {  
 	/**
 	 * Filters allowed tags.
 	 *
@@ -2458,17 +2487,22 @@ function themify_before_after_widget_title_allowed_tags() {
 	 *
 	 * @param array
 	 */
-	return apply_filters( 'themify_before_after_widget_title_allowed_tags', array(
-		'h3'     => array(
-			'class' => true,
-		),
-		'h4' => array(
-			'class' => true,
-		),
-		'strong' => array(
-			'class' => true,
-		),
-	));
+    
+        static $allowed_tags = NULL;
+        if(is_null($allowed_tags)){
+            $allowed_tags = apply_filters( 'themify_before_after_widget_title_allowed_tags', array(
+                    'h3'     => array(
+                            'class' => true,
+                    ),
+                    'h4' => array(
+                            'class' => true,
+                    ),
+                    'strong' => array(
+                            'class' => true,
+                    ),
+            ));
+        }
+	return $allowed_tags;
 }
 
 /**
@@ -2527,11 +2561,12 @@ function themify_get_fa_icon_classname( $icon ) {
  * @return bool
  */
 function themify_is_themify_theme() {
-	if( file_exists( get_template_directory() . '/themify/themify-utils.php' ) ) {
-		return true;
-	}
+        static $is_themify_theme = null;
+        if(is_null($is_themify_theme)){
+            $is_themify_theme = file_exists( get_template_directory() . '/themify/themify-utils.php' );
+        }
 
-	return false;
+	return $is_themify_theme;
 }
 
 if( ! function_exists( 'themify_is_woocommerce_active' ) ) {
@@ -2541,16 +2576,36 @@ if( ! function_exists( 'themify_is_woocommerce_active' ) ) {
 	 * @since 1.4.6
 	 */
 	function themify_is_woocommerce_active() {
-		$plugin = 'woocommerce/woocommerce.php';
-		$network_active = false;
-		if ( is_multisite() ) {
-			$plugins = get_site_option( 'active_sitewide_plugins' );
-			if ( isset( $plugins[$plugin] ) )
-				$network_active = true;
-		}
-		$active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
-		return in_array( $plugin, (array) $active_plugins ) || $network_active;
+                static $is_active = null;
+                if(is_null($is_active)){
+                    $plugin = 'woocommerce/woocommerce.php';
+                    $network_active = false;
+                    if ( is_multisite() ) {
+                            $plugins = get_site_option( 'active_sitewide_plugins' );
+                            if ( isset( $plugins[$plugin] ) )
+                                    $network_active = true;
+                    }
+                    $active_plugins = apply_filters( 'active_plugins', get_option( 'active_plugins' ) );
+                    $is_active = in_array( $plugin, (array) $active_plugins ) || $network_active;
+                }
+		return $is_active;
 	}
+}
+
+/**
+ * Calls is_shop() in a safe manner
+ *
+ * @since 2.9.0
+ * @return bool
+ */
+function themify_is_shop() {
+        static $is_shop = null;
+        if(is_null($is_shop)){
+            $is_shop = themify_is_woocommerce_active()
+		&& function_exists( 'is_shop' ) // required, it may be WC is active but the function is not available
+		&& is_shop();
+        }
+	return $is_shop;
 }
 
 /**

@@ -35,23 +35,23 @@ class Themify_Font_Control extends Themify_Control {
 		$values = json_decode( $v );
 		wp_enqueue_script( 'json2' );
 		$font_options = isset( $this->font_options ) ? $this->font_options : array();
-                $label = $this->show_label && ! empty( $this->label );
+				$label = $this->show_label && ! empty( $this->label );
 		?>
 
 		<?php if ( $label ) : ?>
 			<span class="customize-control-title themify-control-title themify-suba-toggle"><?php echo esc_html( $this->label ); ?></span>
 		<?php endif; ?>
-                <?php if($label):?>
-                    <ul class="themify-control-sub-accordeon">
-                        <li>
-                <?php endif;?>
-                    <?php $this->render_fonts( $values, $font_options ); ?>
+				<?php if($label):?>
+					<ul class="themify-control-sub-accordeon">
+						<li>
+				<?php endif;?>
+					<?php $this->render_fonts( $values, $font_options ); ?>
 
-                    <input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
-                <?php if($label):?>
-                        </li>
-                    </ul>
-                <?php endif;?>
+					<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
+				<?php if($label):?>
+						</li>
+					</ul>
+				<?php endif;?>
 	<?php
 	}
 

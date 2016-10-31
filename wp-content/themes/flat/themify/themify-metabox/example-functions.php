@@ -10,12 +10,29 @@
  */
 
 /**
- * Add custom fields to Post post type
+ * Register a custom meta box to display on Page post type
  *
  * @return array
- * @since 1.0
  */
-function themify_metabox_example_fields_setup( $metaboxes ) {
+function themify_metabox_example_meta_box( $meta_boxes ) {
+	$meta_boxes['tm-example'] = array(
+		'id' => 'tm-example', // later, to add fields to this metabox we'll use "themify_metabox/fields/tm-example" filter hook, see function
+		'title' => __( 'Themify Metabox Example', 'themify' ),
+		'context' => 'normal',
+		'priority' => 'high',
+		'screen' => array( 'page' ),
+	);
+
+	return $meta_boxes;
+}
+add_filter( 'themify_metaboxes', 'themify_metabox_example_meta_box' );
+
+/**
+ * Setup the custom fields for our Themify Metabox Example meta box, added earlier in the themify_metabox_example_meta_box function
+ *
+ * @return array
+ */
+function themify_metabox_example_meta_box_fields( $fields, $post_type ) {
 	$first_tab_options = array(
 		array(
 			'name' => 'text_field',
@@ -171,22 +188,21 @@ function themify_metabox_example_fields_setup( $metaboxes ) {
 		),
 	);
 
-	$metaboxes[] = array(
+	$fields[] = array(
 		'name' => __( 'First Tab', 'themify' ), // Name displayed in box
 		'id' => 'first-tab',
 		'options' => $first_tab_options,
-		'pages'	=> 'post'
 	);
-	$metaboxes[] = array(
+	$fields[] = array(
 		'name' => __( 'Second Tab', 'themify' ), // Name displayed in box
 		'id' => 'second-tab',
 		'options' => $second_tab_options,
-		'pages'	=> 'post'
 	);
 
-	return $metaboxes;
+	return $fields;
 }
-add_filter( 'themify_do_metaboxes', 'themify_metabox_example_fields_setup' );
+add_filter( 'themify_metabox/fields/tm-example', 'themify_metabox_example_meta_box_fields', 10, 2 );
+
 
 /**
  * Add sample fields to the user profile screen

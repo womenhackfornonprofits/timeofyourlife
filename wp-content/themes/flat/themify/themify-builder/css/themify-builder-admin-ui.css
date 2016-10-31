@@ -1309,7 +1309,7 @@ BUILDER MODULE PANEL
 }
 
 .frontend .slide_builder_module_wrapper {
-	padding-right: 115px;
+	padding-right: 120px; /* for save button spacing */
 }
 
 
@@ -2224,11 +2224,11 @@ MODULES
 *************************************************************************************/
 /* default module style */
 .themify_builder_module {
+	width: 110px;
+	padding: 0 5px 0 30px;
+	margin: 0 10px 5px 0;
+	height: 26px;	
 	background-color: #6D55A0;
-	width: 135px;
-	height: 29px;
-	padding: 7px 5px 7px 32px;
-	margin: 0 15px 10px 0px;
 	cursor: move;
 	/* white-space: nowrap; */
 	position: relative;
@@ -2254,32 +2254,31 @@ MODULES
 	top: 6px;
 	left: 9px;
 	color: rgba(255,255,255,.7);
-	font-size: 17px;
+	font-size: 14px;
 }
 .themify_builder_front_panel .themify_builder_module {
 	visibility: visible !important;
 }
 .themify_builder_module .module_name {
+	font-size: 10px;
+	white-space: normal;
+	width: 75px;	
 	font-weight: normal;
-	font-size: 11px;
 	line-height: 110%;
 	display: table-cell;
 	vertical-align: middle;
 	overflow: hidden;
-	width: 105px;
-	overflow: hidden;
-	white-space:nowrap;
 }
 .themify_builder_module .add_module {
 	background: #fff;
 	color: #000;
 	text-indent: -9000em;
 	display: block;
-	width: 1.33em;
-	height: 1.33em;
+	width: 18px;
+	height: 18px;	
 	position: absolute;
-	top: -8px;
-	right: -10px;
+	top: -5px;
+	right: -5px;
 	border-radius: 10em;
 	box-shadow: 0 1px 0 #ccc;
 }
@@ -2425,6 +2424,7 @@ ACTIVE MODULES
 .themify_builder_module.active_module .module_name {
 	display: table-cell;
 	font-size: 13px;
+	text-transform: capitalize;
 	width: auto;
 	vertical-align: middle;
 	white-space: nowrap;
@@ -2872,6 +2872,41 @@ LIGHTBOX FIELDS AND INPUT
 .themify_builder_admin .layout_icon a.selected:hover img {
 	border-color: #f26522;
 }
+.themify_builder_field .layout_icon a {
+	position: relative;
+}
+.themify_builder_field .layout_icon .layout-icon-title {
+	position: absolute;
+	top: 100%;
+	left: 50%;
+	text-align: center;
+	width: auto;
+	white-space: nowrap;
+	z-index: 11;
+	background: rgba(0,0,0, .5);
+	color: #fff;
+	padding: 1px 5px;
+	-webkit-transform: translateX(-50%);
+	-ms-transform: translateX(-50%);
+	transform: translateX(-50%);
+	display: none;
+}
+.themify_builder_field .layout_icon .layout-icon-title:before {
+	content: "";
+	width: 0;
+	height: 0;
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-bottom: 5px solid rgba(0,0,0, .5);
+	position: absolute;
+	bottom: 100%;
+	left: 50%;
+	margin-left: -3px;
+}
+.themify_builder_field .layout_icon a:hover .layout-icon-title {
+	display: block;
+}
+
 
 /* themify_builder_disable_target */
 .themify_builder_disable_target.on {
@@ -2926,14 +2961,14 @@ LIGHTBOX FIELDS AND INPUT
 
 /* color picker
 ---------------------------------------------------------------*/
-.themify_builder_input .minicolors-swatch {
+.themify_builder_field .themify_builder_input .minicolors-swatch {
 	border: none;
 	background: none;
 	width: 29px;
 	height: 29px;
 	border: 1px solid #ddd;
 	background: url(../img/jquery.minicolors.png) -80px 0;
-	margin: -1px -4px 0 0;
+	margin: -3px -4px 0 -3px;
 	box-sizing: border-box;
 }
 .themify_builder.builder-lightbox.larger-lightbox .themify_builder_input .minicolors-swatch {
@@ -3260,6 +3295,9 @@ MODULE FRONT
 	display: none; /* toggle on .themify_builder_module_front:hover */
 	z-index: 302;
 }
+.themify_module_holder:hover .themify_builder_dropdown_front {
+	z-index: 10000;
+}
 .themify_builder_active.builder-is-touch .themify_builder_dropdown_front {
 	display: block !important; /* make it always visible on touch devices*/
 }
@@ -3460,7 +3498,6 @@ MODULE FRONT
 	color: #000;
 	top: 15px;
 	right: 10px;
-	/*width: 95px;*/
 	font-size: 17px;
 }
 .builder_save_front_panel .themify-builder-front-save {
@@ -3469,7 +3506,7 @@ MODULE FRONT
 	text-align: center;
 	padding: 0;
 	color: #fff;
-	font: normal 1em/1em Montserrat, sans-serif;
+	font: normal 14px/1em Montserrat, sans-serif;
 	text-transform: uppercase;
 	cursor: pointer;
 	box-shadow: 0 2px 0 #c2511b;
@@ -4771,36 +4808,6 @@ Gradient Picker
 /************************************************************************************
 MODULE FRONT RESPONSIVE
 *************************************************************************************/
-/* reduce frontend module panel on small viewport width */
-@media screen and (max-width: 1600px) {
-	.themify_builder_module {
-		width: 110px;
-		padding: 0 5px 0 30px;
-		margin: 0 10px 5px 0;
-		height: 26px;
-		}
-	.themify_builder_module .module_name {
-		font-size: 10px;
-		white-space: normal;
-		width: 75px;
-	}
-	.themify_builder_module:before {
-		font-size: 14px;
-	}
-	.themify_builder_module .add_module {
-		top: -5px;
-		right: -5px;
-		width: 18px;
-		height: 18px;
-	}
-	.slide_builder_module_wrapper {
-		padding-right: 105px;
-	}
-	.builder_save_front_panel .themify-builder-front-save {
-		font-size: 0.85em;
-	}
-}
-
 /* reduce module sizing */
 @media screen and (max-width: 1000px) {
 	.themify_builder_module:before {
@@ -4915,6 +4922,24 @@ MODULE FRONT RESPONSIVE
 		width: 100%;
 	}
 }
+
+/* fix backend editor display in metabox */
+#page-builder .themify_field_title {
+	display: none;
+}
+#page-builder .themify_field {
+	float: none;
+	width: 100%;
+}
+
+/* For Color Opacity Textbox */
+.themify_builder_field input[type="text"].opacity-input {
+	width: 48px;
+	margin-left: -10px;
+}
+
+/* Builder lite
+----------------------------------------------------------------*/
 .themify_builder_lite{
     position: relative;
     opacity: .5;
@@ -4947,75 +4972,11 @@ MODULE FRONT RESPONSIVE
 .themify_tooltip {
     display:none;
     position:absolute;
-    border:2px solid #000;
-    background-color:#565656;
-    border-radius:5px;
-    padding:10px;
-    color:#fff;
-    font-size:12px;
-    z-index: 99999999;
-    border-radius: 4px;
-}
-.themify_tooltip_arrow{
-    position: relative;
-    margin: 0 auto;
-    display: table; 
-    top: 12px;
-}
-.themify_tooltip_arrow_background,
-.themify_tooltip_arrow_border{
-    border: 10px solid transparent;
-    border-top-color: #000;
-    left: 0;
-    top: 0;
-    height: 0;
-    position: absolute;
-    width: 0;
-}
-.themify_tooltip_arrow_background{
-    border-top-color: #565656;
-    top: -3px;
-}
-
-/* fix backend editor display in metabox */
-#page-builder .themify_field_title {
-	display: none;
-}
-#page-builder .themify_field {
-	float: none;
-	width: 100%;
-}
-
-/* For Color Opacity Textbox */
-.themify_builder_field input[type="text"].opacity-input {
-	width: 48px;
-	margin-left: -10px;
-}
-
-/* Builder lite
-----------------------------------------------------------------*/
-.themify_builder_lite{
-    position: relative;
-    opacity: .5;
-}
-.themify_builder_lite_modal{
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 100;
-    cursor: not-allowed;
-}
-.themify_tooltip {
-    display:none;
-    position:absolute;
-    background-color: rgba(33,33,33,.9);
+    background-color: rgba(33,33,33,.95);
     border-radius:5px;
     padding: 10px;
     color:#fff;
-    font-size:12px;
-    line-height: 120%;
+    font: 12px/1.2em "Open Sans", sans-serif;
     z-index: 99999999;
     border-radius: 4px;
 }
@@ -5037,4 +4998,20 @@ MODULE FRONT RESPONSIVE
 .themify_tooltip_arrow_background{
     border-top-color: rgba(33,33,33,.9);
     top: -3px;
+}
+
+/* import layout button */
+.tb-import-layout-button {
+	background: #b9b9b9;
+	font-size: 14px;
+	line-height: 1.1em;
+	display: table;
+	margin: 1em auto 0;
+	color: #ffffff;
+	border-radius: 5px;
+	padding: .8em 1.6em;
+	text-decoration: none !important;
+}
+.tb-import-layout-button:hover {
+	background: #c9c9c9;
 }

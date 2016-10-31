@@ -108,7 +108,7 @@
             $subRow.addClass('current_selected_sub_row');
         },
         setUpTooltip: function(){
-            if($('.themify_is_premium_module').length>0 || $('.themify_builder_lite').length>0){
+          if($('.themify_is_premium_module').length>0 || $('.themify_builder_lite').length>0){
                         if($('.themify_tooltip').length===0){
                             $('<div class="themify_tooltip">Upgrade to premium version to get this feature<div class="themify_tooltip_arrow"><div class="themify_tooltip_arrow_border"></div><div class="themify_tooltip_arrow_background"></div></div></div>').appendTo('body');
                         }
@@ -116,24 +116,36 @@
                         height = $('.themify_tooltip').outerHeight(true)+10;
                     $('.themify_builder_lite,.themify_is_premium_module').each(function(){
                         if($(this).children('.themify_builder_lite_modal').length===0){
-                            var $this = $(this);
+                            var $this = $(this),
+                                is_hover = true;
                             $('<div class="themify_builder_lite_modal"></div>').appendTo($(this)).mouseenter(function(e){
                                 var is_input = $this.children('.themify_builder_input').length>0,
                                     $ofset = $(this).offset(),
                                     $width = is_input?50:($(this).width()/2)-width;
-
-                                    $('.themify_tooltip').css({ top: $ofset.top -height, left: $ofset.left+$width}).delay(800)
+                                    is_hover = true;
+                                    $('.themify_tooltip').css({ top: $ofset.top -height, left: $ofset.left+$width}).delay(500)
                                 .queue(function(next) {
-                                    $(this).stop().fadeIn('fast');
+                                    var $el = $(this);
+                                    if(is_hover){
+                                        $el.stop().fadeIn('fast');
+                                    }
+                                    else{
+                                        $('.themify_builder_lite_modal').each(function(){
+                                            if($(this).is('hover')){
+                                                $el.stop().fadeIn('fast');
+                                                return false;
+                                            }
+                                        });
+                                    }
                                     next();
                                 });
                             }).mouseleave(function() {
-                                    $('.themify_tooltip').hide();
+                                is_hover = false;
+                                $('.themify_tooltip').hide();
                             });
                         }
                 });
-            };
-			
+            }
         },
         loadRevisionLightbox: function(e) {
                 e.preventDefault();
@@ -1298,11 +1310,14 @@
             },
 
             switchTabs: function(e) {
-                var self = ThemifyBuilderCommon.Lightbox;
+                var self = ThemifyBuilderCommon.Lightbox,
+                    $this = $(this);
 
                 e.preventDefault();
-
-                $(this).addClass('current').siblings().removeClass('current');
+                $(this).addClass('current');
+                setTimeout( function() {
+                    $this.siblings().removeClass('current');
+                }, 10 )
 
                 var activeTabId = $(this).find('a').attr('href');
                 $(activeTabId).show().siblings('.themify_builder_options_tab_wrapper').hide();

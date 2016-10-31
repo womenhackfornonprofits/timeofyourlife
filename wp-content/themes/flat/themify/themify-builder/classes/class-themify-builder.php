@@ -167,7 +167,9 @@ class Themify_Builder {
 			add_action('wp_enqueue_scripts', array($this, 'async_load_builder_js'), 9);
 			add_action('wp_footer', array($this, 'async_load_assets_loaded'), 99);
 			add_action('wp_ajax_themify_builder_loader', array($this, 'async_load_builder'));
-
+			add_action('wp_ajax_themify_builder_loader_responsive',array($this, 'async_load_builder_responsive'));
+			add_action('wp_ajax_themify_builder_loader_tpl', array($this, 'async_load_builder_tpl'));
+			
 			// load module panel frontend
 			add_action('wp_footer', array($this, 'builder_module_panel_frontedit'), 10);
 			add_action('themify_builder_frontend_load_builder_tmpl', 'themify_font_icons_dialog', 10);
@@ -548,27 +550,47 @@ class Themify_Builder {
 				array_push($results['scripts'], $script_data);
 			}
 		}
-
-		if (isset($_POST['builder_current_url']) && !empty($_POST['builder_current_url'])) {
-			$builder_url = esc_url(add_query_arg('builder_grid_activate', '1', $_POST['builder_current_url']));
-			$results['builder_responsive'] = sprintf('<div class="themify_builder_workspace_container"><div class="themify_builder_workspace"><div class="themify_builder_site_canvas">
-			<ifr'.'ame id="themify_builder_site_canvas_iframe" class="themify_builder_site_canvas_iframe" src="%s"></ifr'.'ame>
-			</div></div><div class="themify_builder_workspace_overlay"></div></div>', $builder_url);
-		}
-
-		ob_start();
-		/**
-		 * Fires frontend load javascript template hooks.
-		 * Hook all builder frontend js template here.
-		 */
-		do_action('themify_builder_frontend_load_builder_tmpl');
-
-		$results['tmpl'] = ob_get_contents();
-		ob_end_clean();
-
+		
 		echo json_encode($results);
 
 		die();
+	}
+	
+        /**
+	 * Called by AJAX action themify_builder_loader_tpl
+	 * Load the script tpl of modules
+	 */
+	public function async_load_builder_tpl(){
+		
+            ob_start();
+            /**
+             * Fires frontend load javascript template hooks.
+             * Hook all builder frontend js template here.
+             */
+            do_action('themify_builder_frontend_load_builder_tmpl');
+
+            $results = ob_get_contents();
+            ob_end_clean();
+
+            echo $results;
+
+            die();
+	}
+	
+        /**
+	 * Called by AJAX action themify_builder_loader_responsive.
+	 * Load the responsive html
+	 */
+	public function async_load_builder_responsive(){
+
+            if (!empty($_POST['builder_current_url'])) {
+                    $builder_url = esc_url(add_query_arg('builder_grid_activate', '1', $_POST['builder_current_url']));
+                    printf('<div class="themify_builder_workspace_container"><div class="themify_builder_workspace"><div class="themify_builder_site_canvas">
+                    <ifr'.'ame id="themify_builder_site_canvas_iframe" class="themify_builder_site_canvas_iframe" src="%s"></ifr'.'ame>
+                    </div></div><div class="themify_builder_workspace_overlay"></div></div>', $builder_url);
+            }
+
+            die();
 	}
 
 	/**
@@ -956,7 +978,8 @@ class Themify_Builder {
 							'text_no_localStorage' =>
 							__("Your browser does not support this feature. Please use a modern browser such as Google Chrome or Safari.", 'themify'),
 							'text_confirm_data_paste' => __('This will overwrite the data. Ok to proceed?', 'themify'),
-							'text_alert_wrong_paste' => __('Error: Paste valid data only (paste row data to row, sub-row data to sub-row, module data to module).', 'themify')
+							'text_alert_wrong_paste' => __('Error: Paste valid data only (paste row data to row, sub-row data to sub-row, module data to module).', 'themify'),
+							'text_import_layout_button' => __( 'Import Layout', 'themify' )
 						)));
 						break;
 
@@ -1011,7 +1034,8 @@ class Themify_Builder {
 							// Breakpoints
 							'breakpoints' => Themify_Builder_Model::get_breakpoints(),
 							// Output builder data to use by Backbone Models
-							'builder_data' => $this->get_builder_data( get_the_ID() )
+							'builder_data' => $this->get_builder_data( get_the_ID() ),
+							'switchToFrontendLabel' => __( 'Themify Builder', 'themify' ),
 						)));
 						break;
 
@@ -1087,12 +1111,14 @@ class Themify_Builder {
 			'version' => THEMIFY_VERSION,
 			'url' => THEMIFY_URI,
 			'TB' => 1,
-			'map_key'=>self::getMapKey()
+			'map_key'=>self::getMapKey(),
+			'includesURL' => includes_url()
 		));
 
 		wp_localize_script('themify-main-script', 'tbLocalScript', apply_filters('themify_builder_script_vars', array(
 			'isAnimationActive' => Themify_Builder_Model::is_animation_active(),
 			'isParallaxActive' => Themify_Builder_Model::is_parallax_active(),
+			'isParallaxScrollActive' => Themify_Builder_Model::is_parallax_scroll_active(),
 			'animationInviewSelectors' => Themify_Builder_Model::is_premium()?Themify_Builder_Include::$inview_selectors:array(),
 			'createAnimationSelectors' => Themify_Builder_Model::is_premium()?Themify_Builder_Include::$new_selectors:array(),
 			'backgroundSlider' => array(
@@ -1234,7 +1260,8 @@ class Themify_Builder {
 							'text_no_localStorage' =>
 							__("Your browser does not support this feature. Please use a modern browser such as Google Chrome or Safari.", 'themify'),
 							'text_confirm_data_paste' => __('This will overwrite the data. Ok to proceed?', 'themify'),
-							'text_alert_wrong_paste' => __('Error: Paste valid data only (paste row data to row, sub-row data to sub-row, module data to module).', 'themify')
+							'text_alert_wrong_paste' => __('Error: Paste valid data only (paste row data to row, sub-row data to sub-row, module data to module).', 'themify'),
+							'text_import_layout_button' => __( 'Import Layout', 'themify' )
 						)));
 						break;
 
@@ -3480,9 +3507,11 @@ class Themify_Builder {
 		}
 
 		// prevent empty rows from being rendered
-		if (!$frontedit_active) {
+		if ( ! $frontedit_active ) {
 			if (
-					(!isset($row['cols']) && !isset($row['styling']) ) || ( isset($row['cols']) && empty($row['cols']) && !isset($row['styling']) ) || ( isset($row['cols']) && count($row['cols']) == 1 && empty($row['cols'][0]['modules']) && !isset($row['styling']) ) // there's only one column and it's empty
+				( ! isset( $row['cols'] ) && ! isset( $row['styling'] ) )
+				|| ( isset( $row['cols'] ) && empty( $row['cols'] ) && ! isset( $row['styling'] ) )
+				|| ( isset( $row['cols'] ) && count( $row['cols'] ) == 1 && empty( $row['cols'][0]['modules'] ) && ( ! isset( $row['styling'] ) || empty( $row['styling'] ) ) ) // there's only one column and it's empty
 			) {
 				return '';
 			}
@@ -4590,6 +4619,12 @@ class Themify_Builder {
 					add_action('themify_builder_sub_column_start', array($this, 'render_sub_column_styling'), 10, 5);
 				}
 			}
+		} else {
+			// No luck. Let's do it inline.
+			$this->is_front_end_style_inline = true;
+			add_action('themify_builder_row_start', array($this, 'render_row_styling'), 10, 2);
+			add_action('themify_builder_column_start', array($this, 'render_column_styling'), 10, 3);
+			add_action('themify_builder_sub_column_start', array($this, 'render_sub_column_styling'), 10, 5);
 		}
 	}
 

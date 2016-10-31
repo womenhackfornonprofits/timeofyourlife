@@ -33,6 +33,41 @@
 			$(this).find('.subtab').css('minHeight', h);
 		});
                 
+                //Autocomplete for 404 pages
+                if($('#themify_404_page_autocomplete').length>0){
+                    var cache = {};
+                    $('#themify_404_page_autocomplete').autocomplete({
+                        minLength: 2,
+                        autoFocus: true,
+                        classes: {
+                            "ui-autocomplete": "highlight"
+                        },
+                        source: function( request, response ) {
+                            var term = request.term;
+                            if ( term in cache ) {
+                              response( cache[ term ] );
+                              return;
+                            }
+                             $.ajax( {
+                                 url: ajaxurl,
+                                 dataType: "json",
+                                 type:'POST',
+                                 data:{'term':term,'action':'themify_get_404_pages'},
+                                 success:function(data){
+                                    cache[ term ] = data;
+                                    response( data );
+                                 }
+                             });
+                          },
+                        select: function( event, ui ) {
+                            event.preventDefault();
+                            $('#themify_404_page_autocomplete').val(ui.item.label).next('input[type="hidden"]').val(ui.item.value);
+                              
+                          }
+                    }).focus(function () {
+                        $(this).autocomplete("search");
+                    });
+                }
                 
                 if(typeof ThemifyBuilderCommon==='undefined' && $('.themify_builder_lite').length>0){
 

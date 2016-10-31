@@ -86,6 +86,7 @@ a.preview-icon {
 	display: inline-block;
 	margin-top: -5px;
 	box-shadow: none;
+	position: relative;
 }
 
 .preview-icon.selected {
@@ -102,7 +103,43 @@ a.preview-icon {
 	background: #F3FCFF;
 }
 
-.selectit { margin-right: 5px; }
+.themify_field-layout .tm-option-title {
+	display: none; /* toggle with JS */
+	font-size: 11px;
+	line-height: 1.1em;
+	position: absolute;
+	top: -10px;
+	left: 50%;
+	text-align: center;
+	width: auto;
+	white-space: nowrap;
+	z-index: 11;
+	background: rgba(0,0,0, .8);
+	color: #fff;
+	padding: 4px 6px;
+	margin-left: -5px;
+	border-radius: 3px;
+	-webkit-transform: translateX(-50%) translateY(-60%);
+	-ms-transform: translateX(-50%) translateY(-60%);
+	transform: translateX(-50%) translateY(-60%);
+}
+.themify_field-layout .tm-option-title:before {
+	content: "";
+	width: 0; 
+	height: 0; 
+	border-left: 5px solid transparent;
+	border-right: 5px solid transparent;
+	border-top: 5px solid rgba(0,0,0,.8);
+	position: absolute;
+	bottom: -5px;
+	left: 50%;
+	margin-left: -3px;
+}
+.themify_field-layout .preview-icon:hover .tm-option-title {
+	display: block;
+}
+
+.selectit {margin-right: 10px;}
 
 .hide-if {
 	opacity: 1;
@@ -255,52 +292,52 @@ a.preview-icon {
 
 /* Assignments field type
 ---------------------------------------------------------------*/
-.themify-assignments .ui-widget-header {
-	border: 1px solid #aaaaaa;
-	background: #cccccc;
-	color: #222222;
-	font-weight: bold;
-	border-top-right-radius: 4px;
-	border-top-left-radius: 4px;
+.themify-assignments .ui-tabs-nav {
+	border: none;
+	background:none;
+	color: inherit;
 }
 .themify-assignments .ui-tabs-nav li {
 	list-style: none;
 	float: left;
 	position: relative;
 	top: 0;
-	margin: 1px .2em 0 0;
-	border-bottom: 0;
+	margin: 1px .2em .5em 0;
 	padding: 0;
 	white-space: nowrap;
-	border: 1px solid #d3d3d3;
-	background: #e6e6e6;
+	border: none;
+	background: none;
 	font-weight: normal;
-	color: #555555;
+	color: inherit;
+	border-radius: 4px;
 }
 .themify-assignments .ui-tabs-nav a {
 	float: left;
-	padding: .5em .7em !important;
+	padding: .4em .8em;
 	text-decoration: none;
-	color: #666;
+	color: inherit;
+	text-transform: uppercase;
+	font-size: .9em;
+	letter-spacing: .03em;
+	opacity: .6;
 }
 .themify-assignments .ui-tabs-nav li.ui-tabs-active {
-	border: 1px solid #aaaaaa;
-	background: #ffffff;
+	border: none;
+	background: #8c8c8c;
 	font-weight: normal;
-	color: #212121;
-	margin-bottom: -1px;
-	padding-bottom: 1px;
+	color: #fff;
 }
 .themify-assignments .ui-tabs-nav li.ui-tabs-active a {
 	cursor: text;
 	color: inherit;
 	border: none;
 	text-decoration: none;
+	opacity: 1;
 }
 .themify-assignments .ui-tabs-panel {
 	display: block;
 	border-width: 0;
-	padding: 20px 0 10px !important;
+	padding: 10px 0 0 !important;
 	background: none;
 	overflow: visible;
 }
@@ -311,21 +348,42 @@ a.preview-icon {
 .themify-assignments.ui-tabs .ui-tabs-panel {
 	padding: 0;
 }
-.themify-assignments .ui-tabs .ui-widget-header,
-.themify-assignments .ui-tabs .ui-widget-header li {
-	background: none;
-	border: none;
-}
 .themify-assignments.ui-tabs .themify-assignment-options {
 }
 .themify-assignments.ui-tabs .themify-assignment-options label {
 	display: block !important;
-	width: 19%;
-	margin-right: 1%;
+	width: 25%;
+	min-width: 230px;
+	padding-right: 1em;
+	margin-bottom: 1em;
 	float: left;
+	box-sizing: border-box;
 }
-.themify-assignments.ui-tabs .themify-assignment-options label:nth-child(4n+1) {
-	clear: left;
+.themify-assignments.ui-tabs .themify-assignment-options label > input {
+	margin-right: .5em;
+}
+
+/* inline-tabs */
+.themify-assignments .ui-tabs-nav.inline-tabs {
+	border-bottom: solid 1px #e4e4e4;
+	border-radius: 0;
+	margin-bottom: 10px;
+	padding: 0;
+}
+.themify-assignments .ui-tabs-nav.inline-tabs li {
+	background: none;
+	color: inherit;
+	padding: 0;
+	border-radius: 0;
+	margin: 0;
+}
+.themify-assignments .ui-tabs-nav.inline-tabs li.ui-tabs-active {
+	border-bottom: solid 3px #999;
+	margin: 0 0 -1px;
+	padding: 0;
+}
+.themify-assignments .ui-tabs-nav li a {
+	padding: .5em .8em;
 }
 
 /* Query Pages
@@ -345,31 +403,8 @@ a.preview-icon {
 
 /* Color Picker
 ---------------------------------------------------------------*/
-.themify_field_row .minicolors-swatch {
-	width: 29px;
-	height: 29px;
-	border: 1px solid #ccc;
-	border-right: none;
-	background: url(../img/jquery.minicolors.png) -80px 0;
-	margin: 0 -4px 0 0;
-}
-.themify_field_row .minicolors-swatch span {	
-	float: left;
-	margin: 0;
-	background: none;
-	height: 29px;
-	width: 29px;
-}
-.themify_field_row .minicolors-focus .minicolors-swatch span {
-	background-position: right top;
-}
-.themify_field_row .minicolors-focus {
-	z-index: 3;
-}
-.themify_field_row .themify_input_field.colorSelectInput {
-	margin-right: 0;
-	margin-top: 0;
-	width: 90px;
+.themify_field_row .minicolors-theme-default .minicolors-input {
+	height: 28px;
 }
 
 .themify_field_row .clearColor {
@@ -378,7 +413,7 @@ a.preview-icon {
 	background: none !important;
 	position: absolute;
 	bottom: 1px;
-	left: 95px;
+	right: 0;
 	margin: 0 !important;
 	padding: 0;
 	border: none !important;

@@ -41,7 +41,7 @@ Description: Skin for Flat
 #main-nav a:hover {
 	color: #000;
 }
-@media screen and (max-width: 1000px) {
+@media screen and (max-width: 1200px) {
 	#headerwrap #main-nav .current_page_item a,
 	#headerwrap #main-nav .current-menu-item a {
 		background: none;

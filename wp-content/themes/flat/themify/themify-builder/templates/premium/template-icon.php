@@ -47,11 +47,30 @@ if (TFCache::start_cache('icon', self::$post_id, array('ID' => $module_ID))):
                     'icon' => '',
                     'new_window'=>false,
                     'icon_color_bg'=>false,
+                    'link_options' => '',
+                    'lightbox_width' => '',
+                    'lightbox_height' => '',
+                    'lightbox_size_unit_width' => '',
+                    'lightbox_size_unit_height' => ''
                 ));
+
+                $link_target = $content['link_options'] === 'newtab' ? 'target="_blank"' : '';
+                $link_lightbox_class = $content['link_options'] === 'lightbox' ? ' class="lightbox-builder themify_lightbox"' : '';
+                $lightbox_units = array( 'pixels' => 'px', 'percents' => '%' );
+                $lightbox_data = !empty( $content['lightbox_width'] ) || !empty( $content['lightbox_height'] ) 
+                    ? sprintf( ' data-zoom-config="%s|%s"'
+                        , $content['lightbox_width'] . $lightbox_units[$content['lightbox_size_unit_width']]
+                        , $content['lightbox_height'] . $lightbox_units[$content['lightbox_size_unit_height']] ) : false;
+                
+                if( !empty( $content['link'] ) && $this->is_img_link($content['link']) && $content['link_options'] === 'lightbox' ) {
+                    $content['link'] = themify_get_lightbox_iframe_link( $content['link'] );
+                }
                 ?>
                 <div class="module-icon-item">
                     <?php if($content['link']):?>
-                        <a <?php if($content['new_window']):?>target="_blank"<?php endif;?> href="<?php echo esc_url($content['link'])?>">
+                        <?php printf( '<a href="%s" %s>'
+                            , esc_attr( $content['link'] )
+                            , $link_target . $lightbox_data . $link_lightbox_class ); ?>
                     <?php endif;?>
                         <?php if($content['icon']):?>
                             <i class="fa <?php echo $content['icon'];?> ui <?php echo $content['icon_color_bg']?>"></i>

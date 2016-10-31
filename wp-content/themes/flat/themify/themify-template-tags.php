@@ -404,7 +404,7 @@ function themify_area_design( $key = 'header', $args = array() ) {
 		'values'  => array( 'header-horizontal', 'header-block', 'none' )
 	) );
 
-	$is_shop = themify_is_woocommerce_active() && is_shop() ? true : false;
+	$is_shop = themify_is_shop() ? true : false;
 
 	if ( is_singular() || $is_shop ) {
 		global $post;
@@ -521,12 +521,13 @@ if( ! function_exists( 'themify_is_query_page' ) ) :
  * @since 1.3.8
  */
 function themify_is_query_page(){
-	global $themify;
-	if( isset( $themify->query_category ) && '' != $themify->query_category ) {
-		return true;
-	} else {
-		return false;
-	}
+        static $is_query_page = NULL;
+        if(is_null($is_query_page)){
+            global $themify;
+            $is_query_page = isset( $themify->query_category ) && '' != $themify->query_category;
+        }
+	
+	return $is_query_page;
 }
 endif;
 

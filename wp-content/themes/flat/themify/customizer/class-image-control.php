@@ -31,26 +31,26 @@ class Themify_Image_Control extends Themify_Control {
 		$id = isset( $values->id ) ? $values->id : '';
 		$thumb = wp_get_attachment_image_src( $id );
 		$thumb_src = isset( $thumb[0] ) ? $thumb[0] : $src;
-                $label = $this->show_label && ! empty( $this->label );
+				$label = $this->show_label && ! empty( $this->label );
 		?>
 
 		<?php if ($label) : ?>
 			<span class="customize-control-title themify-control-title themify-suba-toggle"><?php echo esc_html( $this->label ); ?></span>
 		<?php endif; ?>
-                 <?php if ($label) : ?>                    
-                    <ul class="themify-control-sub-accordeon">
-                        <li>            
-                <?php endif;?>
-                    <div class="themify-customizer-brick">
-                            <?php $this->render_image( $values ); ?>
-                    </div>
+				 <?php if ($label) : ?>                    
+					<ul class="themify-control-sub-accordeon">
+						<li>            
+				<?php endif;?>
+					<div class="themify-customizer-brick">
+							<?php $this->render_image( $values ); ?>
+					</div>
 
 
-                    <input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
-                <?php if ($label) : ?>
-                        </li>
-                    </ul>
-                <?php endif;?>
+					<input <?php $this->link(); ?> value='<?php echo esc_attr( $v ); ?>' type="hidden" class="<?php echo esc_attr( $this->type ); ?>_control themify-customizer-value-field"/>
+				<?php if ($label) : ?>
+						</li>
+					</ul>
+				<?php endif;?>
 		<?php
 	}
 }

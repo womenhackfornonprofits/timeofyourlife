@@ -182,6 +182,7 @@ function themify_builder_module_settings_field_builder($field) {
 							<a href="#" id="<?php echo esc_attr($option['value']); ?>" title="<?php echo esc_attr($option['label']); ?>" class="tfl-icon">
 								<?php $image_url = ( filter_var($option['img'], FILTER_VALIDATE_URL) ) ? $option['img'] : THEMIFY_BUILDER_URI . '/img/builder/' . $option['img']; ?>
 								<img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($option['label']); ?>" />
+								<span class="layout-icon-title"><?php echo $option['label']; ?></span>
 							</a>
 						<?php endforeach; ?>
 					</p>
@@ -428,6 +429,7 @@ if (!function_exists('themify_builder_module_settings_field')) {
 									<a href="#" id="<?php echo esc_attr($option['value']); ?>" title="<?php echo esc_attr($option['label']); ?>" class="tfl-icon">
 										<?php $image_url = ( filter_var($option['img'], FILTER_VALIDATE_URL) ) ? $option['img'] : THEMIFY_BUILDER_URI . '/img/builder/' . $option['img']; ?>
 										<img src="<?php echo esc_url($image_url); ?>" alt="<?php echo esc_attr($option['label']); ?>" />
+										<span class="layout-icon-title"><?php echo $option['label']; ?></span>
 									</a>
 								<?php endforeach; ?>
 							</p>

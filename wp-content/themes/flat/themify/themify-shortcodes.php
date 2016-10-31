@@ -76,7 +76,6 @@ if ( ! function_exists( 'themify_shortcode_list' ) ) {
 			'slide'        => 'themify_shortcode_slide',
 			'author_box'   => 'themify_shortcode_author_box',
 			'icon'         => 'themify_shortcode_icon',
-			'list'         => 'themify_shortcode_icon_list',
 		);
 	}
 }
@@ -95,6 +94,8 @@ foreach( themify_shortcode_list() as $themify_sc => $themify_sc_callback) {
 }
 // Backwards compatibility
 add_shortcode( 'themify_video', 'wp_video_shortcode' );
+
+add_shortcode( 'themify_list', 'themify_shortcode_icon_list' );
 
 /**
  * Fix empty auto paragraph in shortcodes
