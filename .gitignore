@@ -1,4 +1,50 @@
-# Thanks to: https://gist.github.com/jdbartlett/444295
+
+
+# ignore everything in the root except the "wp-content" dire
+# ignore everything in the "wp-content" directory!wp-content/themes/
+
+
+# ignore node dependency directories (used by grunt)
+node_modules/
+
+# ignore OS generated files
+ehthumbs.db
+Thumbs.db
+
+# ignore Editor files
+*.sublime-project
+*.sublime-workspace
+*.komodoproject
+
+# ignore log files and databases
+*.log
+*.sql
+*.sqlite
+
+# ignore compiled files
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# ignore packaged files
+*.7z
+*.dmg
+*.gz
+*.iso
+*.jar
+*.rar
+*.tar
+*.zip
+
+# -------------------------
+# BEGIN Whitelisted Files
+# -------------------------
+
+# track these files, if they exist
+
 
 # Ignore everything in the root except the "wp-content" directory.
 /*
@@ -19,5 +65,4 @@ wp-content/*
 wp-content/themes/*
 !wp-content/themes/flat/*
 !wp-content/themes/flat-child/*
-
 !public/
