@@ -1,0 +1,37 @@
+body {
+	font-family: 'Libre Franklin', sans-serif;
+
+    background-image: url("content/papers-full.jpeg");
+    background-repeat: no-repeat;
+    /*background-attachment: fixed;*/
+    background-position: center;
+          background-size: cover;
+}
+
+.text-over-image {
+	background-color: rgba(0,0,0,0.4);
+	color:white;
+}
+
+.rounded {
+	border-radius: 7px;
+}
+
+.intro {
+	padding: 15px;
+}
+
+  .navbar,.navbar a {
+      padding: 10px;
+      background: rgba(0,0,0,0.5);
+      	color: white;
+
+    }
+
+    /*li {*/
+      /*padding: 0px 10px 0px 10px;*/
+    }
+
+
+
+
