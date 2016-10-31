@@ -1,25 +1,8 @@
-<<<<<<< HEAD
 
-# ignore everything in the root except the "wp-content" directory.
-/*
-!wp-content/
 
-# ignore everything in the "wp-content" directory, except:
-# mu-plugins, plugins, and themes directories
-wp-content/*
-!wp-content/mu-plugins/
-!wp-content/plugins/
-!wp-content/themes/
+# ignore everything in the root except the "wp-content" dire
+# ignore everything in the "wp-content" directory!wp-content/themes/
 
-# ignore all mu-plugins, plugins, and themes
-# unless explicitly whitelisted at the end of this file
-wp-content/mu-plugins/*
-wp-content/plugins/*
-wp-content/themes/*
-
-# ignore all files starting with . or ~
-.*
-~*
 
 # ignore node dependency directories (used by grunt)
 node_modules/
@@ -61,30 +44,7 @@ Thumbs.db
 # -------------------------
 
 # track these files, if they exist
-!.gitignore
-!.editorconfig
-!README.md
-!CHANGELOG.md
-!composer.json
 
-# track favicon files, if they exist
-!android-chrome-*.png
-!apple-touch-icon*.png
-!browserconfig.xml
-!favicon*.png
-!favicon*.ico
-!manifest.json
-!mstile-*.png
-!safari-pinned-tab.svg
-
-# track these mu-plugins, plugins, and themes
-# add your own entries here
-!wp-content/mu-plugins/example-mu-plugin/
-!wp-content/plugins/
-!wp-content/themes/flat/
-!wp-content/themes/flat-child/
-=======
-# Thanks to: https://gist.github.com/jdbartlett/444295
 
 # Ignore everything in the root except the "wp-content" directory.
 /*
@@ -105,4 +65,4 @@ wp-content/*
 wp-content/themes/*
 !wp-content/themes/flat/*
 !wp-content/themes/flat-child/*
->>>>>>> 3949af7f24dfc19c0d45cd7a9196708bc1bf6fc2
+!public/
