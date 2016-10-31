@@ -19,3 +19,5 @@ wp-content/*
 wp-content/themes/*
 !wp-content/themes/flat/*
 !wp-content/themes/flat-child/*
+
+!public/
