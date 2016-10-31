@@ -1,0 +1,16 @@
+/*
+ Theme Name:     Flat Child Theme
+ Theme URI:
+ Description:    Flat Child Theme
+ Author:         Themify
+ Author URI:     https://www.themify.me
+ Template:       flat
+ Version:        1.0.0
+*/
+
+/* =Theme customization starts here
+------------------------------------------------------- */
+
+body {
+  background-color: green;
+}

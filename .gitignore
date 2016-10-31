@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 # ignore everything in the root except the "wp-content" directory.
 /*
@@ -82,3 +83,26 @@ Thumbs.db
 !wp-content/plugins/
 !wp-content/themes/flat/
 !wp-content/themes/flat-child/
+=======
+# Thanks to: https://gist.github.com/jdbartlett/444295
+
+# Ignore everything in the root except the "wp-content" directory.
+/*
+!.gitignore
+!wp-content/
+
+# Ignore everything in the "wp-content" directory, except the "plugins" and "themes" directories.
+wp-content/*
+!wp-content/plugins/
+!wp-content/themes/
+ 
+# Ignore everything in the "plugins" directory, except the plugins you specify
+# wp-content/plugins/*
+# !wp-content/plugins/my-single-file-plugin.php
+# !wp-content/plugins/my-directory-plugin/
+ 
+# Ignore everything in the "themes" directory, except the themes you specify
+wp-content/themes/*
+!wp-content/themes/flat/*
+!wp-content/themes/flat-child/*
+>>>>>>> 3949af7f24dfc19c0d45cd7a9196708bc1bf6fc2
