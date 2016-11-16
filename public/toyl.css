@@ -1,11 +1,26 @@
-body {
-	font-family: 'Libre Franklin', sans-serif;
 
-    background-image: url("content/papers-full.jpeg");
+body {
+    font-family: 'Libre Franklin', sans-serif;
+    background-image: url(content/papers-full.jpeg);
     background-repeat: no-repeat;
-    /*background-attachment: fixed;*/
+    /* background-attachment: fixed; */
     background-position: center;
-          background-size: cover;
+    background-size: cover;
+    /*padding-top: 70px;*/
+}
+
+
+
+}
+.row {
+  /*max-width: 100px;*/
+      /*padding: 80px;*/
+        position: absolute; 
+   top: 100px; 
+   left: 30px;
+   width: 120%; 
+        /*position: relative;*/
+      /*margin: 0 auto;*/
 }
 
 .text-over-image {
@@ -14,24 +29,29 @@ body {
 }
 
 .rounded {
-	border-radius: 7px;
+	border-radius: 12px;
 }
 
 .intro {
 	padding: 15px;
 }
 
-  .navbar,.navbar a {
-      padding: 10px;
-      background: rgba(0,0,0,0.5);
-      	color: white;
+.col-xs-12  col-md-6  text-over-image  rounded intro {
+        margin: 0 auto;
+
+}
+
+
+  /*.navbar,.navbar a {*/
+      /*padding: 10px;*/
+      /*background: rgba(0,0,0,0.5);*/
+      	/*color: white;*/
 
     }
 
-    /*li {*/
-      /*padding: 0px 10px 0px 10px;*/
-    }
-
+/*.navbar-default a.navbar-brand {*/
+   /*color: white;*/
+} 
 
 
 
